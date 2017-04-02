@@ -1,10 +1,10 @@
 {
-  "name": "{{ name }}",
+  "name": "probot-freeze",
   "version": "1.0.0",
-  "description": "{{ description }}",
-  "author": "{{ author }}",
+  "description": "a GitHub integration that temporarily closes issues and pull requests on demand. It will reopen then in the future as specified",
+  "author": "Jamie Jones",
   "license": "ISC",
-  "repository": "https://github.com/{{ owner }}/{{ repo }}.git",
+  "repository": "https://github.com/jbjonesjr/probot-freeze.git",
   "scripts": {
     "start": "probot run ./index.js",
     "test": "mocha && xo --extend probot"
