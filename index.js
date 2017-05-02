@@ -71,7 +71,7 @@ module.exports = robot => {
 
     github.issues.createComment(context.issue({
       body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around ' + props.unfreezeMoment.calendar() + ' :clock1: ' +
-      '<!-- props = ' + JSON.stringify(props) + '-->'
+      '<!-- ' + JSON.stringify(props) + '-->'
     }));
   };
 
@@ -102,10 +102,9 @@ module.exports = robot => {
 
   const propFromComment = comment => {
 // Read comment, find json comment, eval, return
-    const match = comment.match('.*<!-- (.*)-->');
+    const match = comment.match('.*<!-- (props = )?(.*)-->');
     if (match !== null) {
-      eval(match[1]);
-      return props;
+      return eval(match[2]);
     }
     return {};
   };
