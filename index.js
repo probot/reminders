@@ -2,39 +2,15 @@ const moment = require('moment');
 const visitor = require('probot-visitor');
 
 module.exports = robot => {
-    // Your plugin code here
+  /* Configuration Variables */
   const username = 'probot-freeze[bot]';
   const labelName = 'probot:freeze';
   const labelColor = 'gray';
 
-  const check = msg => {
-    const expression = '@probot.*[freeze|archive]';
-    if (msg.match(expression)) {
-      return true;
-    }
-  };
+  const defaultFreezeDuration = 7;
+  const sampleFormat = '@probot, freeze this thread until 2100-01-01 with "A message I\'ll response with"';
 
-  const parseDate = msg => {
-    const expression = 'until (.*) with';
-    const match = msg.match(expression);
-    if (match !== null) {
-      const freezeDate = moment(match[1]);
-      if (freezeDate.isValid()) {
-        return freezeDate;
-      }
-    }
-    return moment().add(7, 'days');
-  };
-
-  const parseMessage = msg => {
-    const expression = 'until .* with "?(.*)"?';
-    const match = msg.match(expression);
-    if (match !== null) {
-      return match[1];
-    }
-    return 'Hey, we\'re back awake!';
-  };
-
+  /* GitHub helper functions */
   const commentUrlToIssueRequest = url => {
     const match = url.match('https://api.github.com/repos/(.*)/(.*)/issues/(.*)/comments');
     if (match === null) {
@@ -47,20 +23,51 @@ module.exports = robot => {
       };
     }
   };
+  /* Probot Freeze specific format functions */
+
+  const parseDateFromComment = msg => {
+    const expression = 'until (.*) with';
+    const match = msg.match(expression);
+    if (match !== null) {
+      const freezeDate = moment(match[1]);
+      if (freezeDate.isValid()) {
+        return freezeDate;
+      }
+    }
+    return moment().add(defaultFreezeDuration, 'days');
+  };
+
+  const parseResponseMessageFromComment = msg => {
+    const expression = 'until .* with "?(.*)"?';
+    const match = msg.match(expression);
+    if (match !== null) {
+      return match[1];
+    }
+    return 'Hey, we\'re back awake!';
+  };
+
+  const propFromComment = comment => {
+    const match = comment.match('.*<!-- (props = )?(.*)-->');
+    if (match !== null) {
+      return eval(match[2]);
+    }
+    return {};
+  };
+
+  const check = msg => {
+    const expression = '@probot(-freeze[bot])?.*[freeze|archive|suspend]';
+    if (msg.match(expression)) {
+      return true;
+    }
+  };
 
   const freeze = function (context, github, props) {
-        /*
-        Const options = context.repo({path: '.github/ISSUE_REPLY_TEMPLATE.md'});
-        const data = await github.repos.getContent(options);
-        const template = new Buffer(data.content, 'base64').toString();
-        */
-
-    const existing = context.event.payload.issue.labels.find(elm => {
+    const currentLabels = context.event.payload.issue.labels.find(elm => {
       return typeof (elm) === 'object' && Object.prototype.hasOwnProperty.call(elm, 'name') && elm.name === labelName;
     });
 
     const labels = context.event.payload.issue.labels;
-    if (existing === undefined) {
+    if (currentLabels === undefined) {
       labels.push(labelName);
     }
 
@@ -100,23 +107,14 @@ module.exports = robot => {
     }));
   });
 
-  const propFromComment = comment => {
-// Read comment, find json comment, eval, return
-    const match = comment.match('.*<!-- (props = )?(.*)-->');
-    if (match !== null) {
-      return eval(match[2]);
-    }
-    return {};
-  };
-
   robot.on('issue_comment', async (event, context) => {
     const github = await robot.auth(event.payload.installation.id);
     const commentBody = event.payload.comment.body;
     if (check(commentBody)) {
       const props = {
         assignee: context.event.payload.comment.user.login,
-        unfreezeMoment: parseDate(commentBody),
-        message: parseMessage(commentBody)
+        unfreezeMoment: parseDateFromComment(commentBody),
+        message: parseResponseMessageFromComment(commentBody)
       };
       freeze(context, github, props);
     }
