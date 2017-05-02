@@ -83,7 +83,7 @@ module.exports = robot => {
     const pos = labels.indexOf(frozenLabel);
     labels.splice(pos, 1);
     github.issues.edit(Object.assign(commentUrlToIssueRequest(issue.comments_url), {
-      state: 'closed',
+      state: 'open',
       labels
     }));
 
