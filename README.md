@@ -1,6 +1,6 @@
 # Probot: Freeze
 
-> a GitHub Integration built with [probot](https://github.com/probot/probot) that that temporarily closes issues and pull requests on demand. It will reopen then in the future on the specified date, or at random.
+> a GitHub Integration built with [probot](https://github.com/probot/probot) that that temporarily closes issues and pull requests on demand. It can reopen them in the future on the specified date, and provide a message as well.
 
 ## Usage
 1. **[Configure the GitHub Integration](https://github.com/integration/probot-freeze)**
@@ -9,12 +9,14 @@
 Configuration in `.github/probot-freeze.yml` can override these defaults:
 
 ```yml
-# Label to use when marking as frozen
-freezeLabel:
-  - frozen
-# Comment to post when freezing an issue. Set to `false` to disable
-markComment: >
-  This issue has been frozen by {}. It will be reopened after {} days. See ya soon!
+# Default length (in days) to freeze an item if no date is specified
+defaultFreezeDuration: 7,
+
+#label applied to frozen issues. This is what the bot uses for its source of truth
+labelName : 'probot:freeze',
+
+# label color
+labelColor : 'gray'
 ```
 ## Setup
 
