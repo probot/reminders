@@ -41,7 +41,7 @@ module.exports = robot => {
 
     const frozenIssues = await github.search.issues({q:'label:' + this.labelName});
     frozenIssues.items.forEach(issue => {
-      const comment = formatParser.getLastFreeze(github.issues.getComments(formatParser.commentUrlToIssueRequest(issue.comments_url)));
+      const comment = freeze.getLastFreeze(github.issues.getComments(formatParser.commentUrlToIssueRequest(issue.comments_url)));
 
       if (freeze.unfreezable(comment)) {
         freeze.unfreeze(issue, formatParser.propFromComment(comment));
@@ -53,15 +53,15 @@ module.exports = robot => {
     const owner = repository.owner.login;
     const repo = repository.name;
     const path = '.github/probot-freeze.yml';
-    let config;
+    let config = {};
 
     try {
       const data = await github.repos.getContent({owner, repo, path});
       config = yaml.load(new Buffer(data.content, 'base64').toString()) || {};
     } catch (err) {
-      visit.stop(repository);
-      // Don't actually perform for repository without a config
-      config = {perform: false};
+      if (err.code !== 403) {
+        visit.stop(repository);
+      }
     }
 
     config = Object.assign(config, {owner, repo, logger: robot.log});
