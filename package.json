@@ -10,6 +10,7 @@
     "test": "mocha && xo --extend probot"
   },
   "dependencies": {
+    "js-yaml": "^3.8.3",
     "probot": "~0.4.1",
     "probot-visitor": "^0.1.1"
   },
