@@ -12,7 +12,7 @@ module.exports = robot => {
 
   async function config(event) {
     const github = await robot.auth(event.payload.installation.id);
-    const freeze = forRepository(github, event.payload.repository);
+    const freeze = await forRepository(github, event.payload.repository);
 
     github.issues.getLabel(context.repositories_added[0]({
       name: freeze.labelName}).catch(() => {
@@ -25,9 +25,9 @@ module.exports = robot => {
 
   async function handleFreeze(event, context) {
     const github = await robot.auth(event.payload.installation.id);
-    const freeze = forRepository(github, event.payload.repository);
+    const freeze = await forRepository(github, event.payload.repository);
     const comment = event.payload.comment;
-    if (!context.isBot && freeze.freezable(comment.body)) {
+    if (!context.isBot && freeze.freezable(comment)) {
       freeze.freeze(
         context,
         freeze.propsHelper(context.event.payload.comment.user.login, comment.body)
@@ -37,7 +37,7 @@ module.exports = robot => {
 
   async function handleThaw(installation, repository) {
     const github = await robot.auth(installation.id);
-    const freeze = forRepository(github, repository);
+    const freeze = await forRepository(github, repository);
 
     const frozenIssues = await github.search.issues({q:'label:' + this.labelName});
     frozenIssues.items.forEach(issue => {
