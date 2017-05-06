@@ -2,21 +2,21 @@ const yaml = require('js-yaml');
 const visitor = require('probot-visitor');
 const Freeze = require('./lib/freeze');
 const formatParser = require('./lib/format-parser');
+const githubHelper = require('./lib/github-helper');
 
 /* Configuration Variables */
 
 module.exports = robot => {
   robot.on('integration_installation.added', config);
   robot.on('issue_comment', handleFreeze);
-  const visit = visitor(robot, {interval: 60 * 30 * 1000}, handleThaw);
+  const visit = visitor(robot, {interval: 60 * 5 * 1000}, handleThaw);
 
   async function config(event) {
-    const github = await robot.auth(event.payload.installation.id);
-    const freeze = await forRepository(github, event.payload.repository);
+    const freeze = await forRepository(context.github, event.payload.repository);
 
-    github.issues.getLabel(context.repositories_added[0]({
+    context.github.issues.getLabel(context.repositories_added[0]({
       name: freeze.labelName}).catch(() => {
-        return github.issues.createLabel(context.repositories_added[0]({
+        return context.github.issues.createLabel(context.repositories_added[0]({
           name: freeze.config.labelName,
           color: freeze.config.labelColor
         }));
@@ -24,10 +24,9 @@ module.exports = robot => {
   }
 
   async function handleFreeze(event, context) {
-    const github = await robot.auth(event.payload.installation.id);
-    const freeze = await forRepository(github, event.payload.repository);
+    const freeze = await forRepository(context.github, event.payload.repository);
     const comment = event.payload.comment;
-    if (!context.isBot && freeze.freezable(comment)) {
+    if (freeze.config.perform && !context.isBot && freeze.freezable(comment)) {
       freeze.freeze(
         context,
         freeze.propsHelper(context.event.payload.comment.user.login, comment.body)
@@ -36,12 +35,11 @@ module.exports = robot => {
   }
 
   async function handleThaw(installation, repository) {
-    const github = await robot.auth(installation.id);
-    const freeze = await forRepository(github, repository);
+    const freeze = await forRepository(context.github, repository);
 
-    const frozenIssues = await github.search.issues({q:'label:' + this.labelName});
+    const frozenIssues = await context.github.search.issues({q:'label:' + this.labelName});
     frozenIssues.items.forEach(issue => {
-      const comment = freeze.getLastFreeze(github.issues.getComments(formatParser.commentUrlToIssueRequest(issue.comments_url)));
+      const comment = freeze.getLastFreeze(context.github.issues.getComments(githubHelper.commentUrlToIssueRequest(issue.comments_url)));
 
       if (freeze.unfreezable(comment)) {
         freeze.unfreeze(issue, formatParser.propFromComment(comment));
@@ -58,10 +56,9 @@ module.exports = robot => {
     try {
       const data = await github.repos.getContent({owner, repo, path});
       config = yaml.load(new Buffer(data.content, 'base64').toString()) || {};
+      config = Object.assign(config, {perform:true});
     } catch (err) {
-      if (err.code !== 403) {
-        visit.stop(repository);
-      }
+      visit.stop(repository);
     }
 
     config = Object.assign(config, {owner, repo, logger: robot.log});
