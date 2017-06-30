@@ -1,19 +1,19 @@
-# Probot: Freeze
+# Probot: (Issue and Pull Request) Snooze
 
-> a GitHub Integration built with [probot](https://github.com/probot/probot) that that temporarily closes issues and pull requests on demand. It can reopen them in the future on the specified date, and provide a message as well.
+> a GitHub Integration built with [probot](https://github.com/probot/probot) that that temporarily closes Issues and Pull Requests on demand. It will reopen them in the future on the specified date, and provide an (optional) message at that time.
 
 ## Usage
 1. **[Configure the GitHub Integration](https://github.com/integration/probot-freeze)**
-2. Create `.github/probot-freeze.yml`
+2. Create `.github/probot-snooze.yml`
 
-Configuration in `.github/probot-freeze.yml` can override these defaults:
+Configuration in `.github/probot-snooze.yml` can override these defaults:
 
 ```yml
-# Default length (in days) to freeze an item if no date is specified
-defaultFreezeDuration: 7,
+# Default length (in days) to snooze an item if no date is specified
+defaultSnoozeDuration: 7,
 
 #label applied to frozen issues. This is what the bot uses for its source of truth
-labelName : 'probot:freeze',
+labelName : 'probot:snooze',
 
 # label color
 labelColor : 'gray'
