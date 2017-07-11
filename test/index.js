@@ -15,11 +15,25 @@ describe('snooze', () => {
 
     // Mock out the GitHub API
     github = {     
+      repos: {
+        // Response for getting content from '.github/ISSUE_REPLY_TEMPLATE.md'
+        getContent: expect.createSpy().andReturn(Promise.resolve({
+          data: {
+            content: Buffer.from(`Hello World!`).toString('base64')
+          }
+        }))
+      },
       issues: {
-        createComment: expect.createSpy()
+        getComments: null, // githubHelper.commentUrlToIssueRequest(issue.comments_url)
+        createComment: expect.createSpy(),
+        getLabel: null, //  name: freeze.labelName
+        createLabel: expect.createSpy() //name: freeze.config.labelName,          color: freeze.config.labelColor
+      },
+      search: {
+        issues: null // q:'label:' + this.labelName
       }
-    };
-
+    };        
+        
     // Mock out GitHub client
     robot.auth = () => Promise.resolve(github);
   });
