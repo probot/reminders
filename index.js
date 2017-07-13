@@ -41,11 +41,10 @@ module.exports = robot => {
   async function handleThaw(installation, repository) {
     const github = await robot.auth(installation.id);
     const freeze = await forRepository(github, repository);
-
-    github.search.issues({q:'label:' + this.labelName}).then(issues => {
-      issues.items.forEach(issue => {
-        github.issues.getComments(githubHelper.commentUrlToIssueRequest(issue.comments_url)).then(comments => {
-          return freeze.getLastFreeze(comments);
+    github.search.issues({q:'label:' + freeze.config.labelName, repo:repository.full_name}).then(resp => {
+      resp.data.items.forEach(issue => {
+        github.issues.getComments(githubHelper.commentUrlToIssueRequest(issue.comments_url)).then(resp => {
+          return freeze.getLastFreeze(resp.data);
         }).then(lastFreezeComment => {
           if (freeze.unfreezable(lastFreezeComment)) {
             freeze.unfreeze(issue, formatParser.propFromComment(lastFreezeComment));
@@ -53,18 +52,18 @@ module.exports = robot => {
         });
       });
     });
+    console.log('visitor/thaw run complete');
   }
 
   async function forRepository(github, repository) {
     const owner = repository.owner.login;
     const repo = repository.name;
-    const path = '.github/probot-freeze.yml';
+    const path = '.github/probot-snooze.yml';
     let config = {};
 
     try {
-      const data = await github.repos.getContent({owner, repo, path});
-
-      config = Object.assign(yaml.load(Buffer.from(data.content, 'base64').toString()) || {}, {perform:true});
+      const resp = await github.repos.getContent({owner, repo, path});
+      config = Object.assign(yaml.load(Buffer.from(resp.data.content, 'base64').toString()) || {}, {perform:true});
     } catch (err) {
       console.log('error', err);
       visit.stop(repository);
