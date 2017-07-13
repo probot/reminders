@@ -23,13 +23,14 @@ module.exports = robot => {
       }));
   }
 
-  async function handleFreeze(event, context) {
-    const freeze = await forRepository(context.github, event.payload.repository);
-    const comment = event.payload.comment;
+  async function handleFreeze(context) {
+    const freeze = await forRepository(context.github, context.payload.repository);
+    const comment = context.payload.comment;
+    freeze.config.perform = true;
     if (freeze.config.perform && !context.isBot && freeze.freezable(comment)) {
       freeze.freeze(
         context,
-        freeze.propsHelper(context.event.payload.comment.user.login, comment.body)
+        freeze.propsHelper(comment.user.login, comment.body)
     );
     }
   }
@@ -55,9 +56,10 @@ module.exports = robot => {
 
     try {
       const data = await github.repos.getContent({owner, repo, path});
-      config = yaml.load(new Buffer(data.content, 'base64').toString()) || {};
-      config = Object.assign(config, {perform:true});
+
+      config = Object.assign(yaml.load(Buffer.from(data.content, 'base64').toString()) || {}, {perform:true});
     } catch (err) {
+      console.log('error', err);
       visit.stop(repository);
     }
 
