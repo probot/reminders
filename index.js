@@ -10,6 +10,9 @@ module.exports = robot => {
   robot.on('integration_installation.added', config);
   robot.on('issue_comment', handleFreeze);
   const visit = visitor(robot, {interval: 60 * 5 * 1000}, handleThaw);
+  robot.on('test.visit', context => {
+    handleThaw(75, context.payload.repository);
+  });
 
   async function config(event) {
     const freeze = await forRepository(context.github, event.payload.repository);
@@ -36,15 +39,19 @@ module.exports = robot => {
   }
 
   async function handleThaw(installation, repository) {
-    const freeze = await forRepository(context.github, repository);
+    const github = await robot.auth(installation.id);
+    const freeze = await forRepository(github, repository);
 
-    const frozenIssues = await context.github.search.issues({q:'label:' + this.labelName});
-    frozenIssues.items.forEach(issue => {
-      const comment = freeze.getLastFreeze(context.github.issues.getComments(githubHelper.commentUrlToIssueRequest(issue.comments_url)));
-
-      if (freeze.unfreezable(comment)) {
-        freeze.unfreeze(issue, formatParser.propFromComment(comment));
-      }
+    github.search.issues({q:'label:' + this.labelName}).then(issues => {
+      issues.items.forEach(issue => {
+        github.issues.getComments(githubHelper.commentUrlToIssueRequest(issue.comments_url)).then(comments => {
+          return freeze.getLastFreeze(comments);
+        }).then(lastFreezeComment => {
+          if (freeze.unfreezable(lastFreezeComment)) {
+            freeze.unfreeze(issue, formatParser.propFromComment(lastFreezeComment));
+          }
+        });
+      });
     });
   }
 
