@@ -35,6 +35,7 @@ module.exports = robot => {
         context,
         freeze.propsHelper(comment.user.login, comment.body)
     );
+      console.log('issue just snoozed', context.issue());
     }
   }
 
