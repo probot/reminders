@@ -11,8 +11,6 @@ describe('PRobot-Snooze ', () => {
     robot = createRobot();
 
     // Load the plugin
-    plugin(robot);
-
     // Mock out the GitHub API
     github = {
       repos: {
@@ -63,6 +61,8 @@ perform: true
 
     // Mock out GitHub client
     robot.auth = () => Promise.resolve(github);
+
+    plugin(robot);
   });
 
   it('posts a generic comment', async () => {
