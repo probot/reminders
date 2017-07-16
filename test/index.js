@@ -13,6 +13,10 @@ describe('PRobot-Snooze ', () => {
     // Load the plugin
     // Mock out the GitHub API
     github = {
+      integrations:{
+        getInstallations: expect.createSpy()
+      },
+      paginate: expect.createSpy(),
       repos: {
         // Response for getting content from '.github/probot-freeze.yml'
         getContent: expect.createSpy().andReturn(Promise.resolve({
