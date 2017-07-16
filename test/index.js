@@ -3,7 +3,7 @@ const {createRobot} = require('probot');
 const plugin = require('..');
 const commentEvent = require('./fixtures/issue_comment.created');
 
-describe('snooze', () => {
+describe('PRobot-Snooze ', () => {
   let robot;
   let github;
 
