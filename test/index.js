@@ -159,18 +159,18 @@ perform: true
       path: '.github/probot-snooze.yml'
     });
 
-    // Expect(github.issues.edit).toHaveBeenCalledWith({
-    //   owner: 'baxterthehacker',
-    //   repo: 'public-repo',
-    //   number: '2',
-    //   state: 'open',
-    //   labels: []
-    // });
-    // expect(github.issues.createComment).toHaveBeenCalledWith({
-    //   owner: 'baxterthehacker',
-    //   repo: 'public-repo',
-    //   number: '2',
-    //   body: ':wave: @baxterthehacker, Hey, we\'re back awake!'
-    // });
+    expect(github.issues.edit).toHaveBeenCalledWith({
+      labels: [],
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      number: '2',
+      state: 'open'
+    });
+    expect(github.issues.createComment).toHaveBeenCalledWith({
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      number: '2',
+      body: ':wave: @baxterthehacker, Hey, we\'re back awake!'
+    });
   });
 });

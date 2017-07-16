@@ -10,8 +10,8 @@ module.exports = robot => {
   robot.on('integration_installation.added', config);
   robot.on('issue_comment', handleFreeze);
   const visit = visitor(robot, {interval: 60 * 5 * 1000}, handleThaw);
-  robot.on('test.visit', context => {
-    handleThaw(75, context.payload.repository);
+  robot.on('test.visit', async context => {
+    await handleThaw(75, context.payload.repository);
   });
 
   async function config(event) {
