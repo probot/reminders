@@ -76,10 +76,14 @@ perform: true
   it('resolves timezone issues with chrono-node', async () => {
     console.log('current time', new Date());
     console.log('timezon offset', new Date().getTimezoneOffset());
+    // PD reads the date as local.
     const parseDate = chrono.parseDate('July 1, 2018 13:30');
     console.log('pd', util.inspect(parseDate, {depth:null}));
     const mom = moment(parseDate);
+    // Moment returns the date in local
     console.log('mom', util.inspect(mom, {depth:null}));
+    mom.add(new Date().getTimezoneOffset(), 'minutes');
+    console.log('mom in UTC', util.inspect(mom, {depth:null}));
   });
 
   it('posts a generic comment', async () => {
