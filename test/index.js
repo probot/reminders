@@ -3,7 +3,6 @@ const {createRobot} = require('probot');
 const plugin = require('..');
 const moment = require('moment');
 const chrono = require('chrono-node');
-const util = require('util');
 const Freeze = require('../lib/freeze.js');
 const commentEvent = require('./fixtures/issue_comment.created');
 
