@@ -1,9 +1,9 @@
 const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');
-const commentEvent = require('./fixtures/issue_comment.created');
-const Freeze = require('../lib/freeze.js');
 const moment = require('moment');
+const Freeze = require('../lib/freeze.js');
+const commentEvent = require('./fixtures/issue_comment.created');
 
 describe('PRobot-Snooze ', () => {
   let robot;

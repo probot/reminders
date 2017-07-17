@@ -14,9 +14,8 @@ module.exports = robot => {
     await handleThaw(75, context.payload.repository);
   });
 
-  async function config(event) {
-    const freeze = await forRepository(context.github, event.payload.repository);
-
+  async function config(context) {
+    const freeze = new Freeze(context.github, await getConfig(context.github, context.payload.repository));
     context.github.issues.getLabel(context.repositories_added[0]({
       name: freeze.labelName}).catch(() => {
         return context.github.issues.createLabel(context.repositories_added[0]({
