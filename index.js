@@ -27,7 +27,8 @@ module.exports = robot => {
   }
 
   async function handleFreeze(context) {
-    const freeze = await forRepository(context.github, context.payload.repository);
+    const freeze = new Freeze(context.github, await getConfig(context.github, context.payload.repository));
+
     const comment = context.payload.comment;
     freeze.config.perform = true;
     if (freeze.config.perform && !context.isBot && freeze.freezable(comment)) {
@@ -41,7 +42,8 @@ module.exports = robot => {
 
   async function handleThaw(installation, repository) {
     const github = await robot.auth(installation.id);
-    const freeze = await forRepository(github, repository);
+    const freeze = new Freeze(github, await getConfig(github, repository));
+
     github.search.issues({q:'label:' + freeze.config.labelName, repo:repository.full_name}).then(resp => {
       resp.data.items.forEach(issue => {
         github.issues.getComments(githubHelper.parseCommentURL(issue.comments_url)).then(resp => {
@@ -56,7 +58,7 @@ module.exports = robot => {
     console.log('visitor/thaw run complete');
   }
 
-  async function forRepository(github, repository) {
+  async function getConfig(github, repository) {
     const owner = repository.owner.login;
     const repo = repository.name;
     const path = '.github/probot-snooze.yml';
@@ -70,8 +72,6 @@ module.exports = robot => {
       visit.stop(repository);
     }
 
-    config = Object.assign(config, {owner, repo, logger: robot.log});
-
-    return new Freeze(github, config);
+    return Object.assign(config, {owner, repo, logger: robot.log});
   }
 };
