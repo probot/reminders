@@ -2,6 +2,7 @@ const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');
 const moment = require('moment');
+const util = require('util');
 const Freeze = require('../lib/freeze.js');
 const commentEvent = require('./fixtures/issue_comment.created');
 
@@ -104,6 +105,8 @@ perform: true
       },
         'probot:freeze']
     }));
+    console.log(util.inspect(github.issues.createComment, {depth:null}));
+
     expect(github.issues.createComment).toHaveBeenCalledWith({
       number: 2,
       owner: 'baxterthehacker',
