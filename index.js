@@ -7,26 +7,28 @@ const githubHelper = require('./lib/github-helper');
 /* Configuration Variables */
 
 module.exports = robot => {
-  robot.on('integration_installation.added', config);
+  robot.on('integration_installation.added', installationEvent);
   robot.on('issue_comment', handleFreeze);
   const visit = visitor(robot, {interval: 60 * 5 * 1000}, handleThaw);
   robot.on('test.visit', async context => {
     await handleThaw(75, context.payload.repository);
   });
 
-  async function config(context) {
-    const freeze = new Freeze(context.github, await getConfig(context.github, context.payload.repository));
+  async function installationEvent(context) {
+    const config = await getConfig(context.github, context.payload.repository);
+
     context.github.issues.getLabel(context.repositories_added[0]({
-      name: freeze.labelName}).catch(() => {
+      name: config.labelName}).catch(() => {
         return context.github.issues.createLabel(context.repositories_added[0]({
-          name: freeze.config.labelName,
-          color: freeze.config.labelColor
+          name: config.labelName,
+          color: config.labelColor
         }));
       }));
   }
 
   async function handleFreeze(context) {
-    const freeze = new Freeze(context.github, await getConfig(context.github, context.payload.repository));
+    const config = await getConfig(context.github, context.payload.repository);
+    const freeze = new Freeze(context.github, config);
 
     const comment = context.payload.comment;
     freeze.config.perform = true;
@@ -35,13 +37,13 @@ module.exports = robot => {
         context,
         freeze.propsHelper(comment.user.login, comment.body)
     );
-      console.log('issue just snoozed', context.issue());
     }
   }
 
   async function handleThaw(installation, repository) {
     const github = await robot.auth(installation.id);
-    const freeze = new Freeze(github, await getConfig(github, repository));
+    const config = await getConfig(github, repository);
+    const freeze = new Freeze(github, config);
 
     github.search.issues({q:'label:' + freeze.config.labelName, repo:repository.full_name}).then(resp => {
       resp.data.items.forEach(issue => {
