@@ -90,6 +90,7 @@ perform: true
       repo: 'public-repo',
       path: '.github/probot-snooze.yml'
     });
+    console.log(github.issues.edit.calls);
     expect(github.issues.edit({
       number:2,
       owner: 'baxterthehacker',
@@ -103,7 +104,7 @@ perform: true
         'probot:freeze']
     }));
     expect(github.issues.createComment).toHaveBeenCalledWith({
-      number:2,
+      number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
       body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2018 :clock1: ' +
