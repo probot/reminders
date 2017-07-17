@@ -74,6 +74,8 @@ perform: true
   });
 
   it('resolves timezone issues with chrono-node', async () => {
+/*  Save this code unless we need to review later
+
     console.log('current time', new Date());
     console.log('timezon offset', new Date().getTimezoneOffset());
     // PD reads the date as local.
@@ -84,6 +86,7 @@ perform: true
     console.log('mom', util.inspect(mom, {depth:null}));
     mom.add(new Date().getTimezoneOffset(), 'minutes');
     console.log('mom in UTC', util.inspect(mom, {depth:null}));
+    */
   });
 
   it('posts a generic comment', async () => {
@@ -124,7 +127,7 @@ perform: true
       owner: 'baxterthehacker',
       repo: 'public-repo',
       body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2018 :clock1: ' +
-        '<!-- {"assignee":"baxterthehacker","unfreezeMoment":"2018-07-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}-->'
+        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2018 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
     });
   });
 
@@ -158,7 +161,7 @@ perform: true
       owner: 'baxterthehacker',
       repo: 'public-repo',
       body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2018 :clock1: ' +
-        '<!-- {"assignee":"baxterthehacker","unfreezeMoment":"2018-07-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}-->'
+        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2018 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
     });
   });
 
