@@ -2,6 +2,7 @@ const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');
 const moment = require('moment');
+const chrono = require('chrono-node');
 const util = require('util');
 const Freeze = require('../lib/freeze.js');
 const commentEvent = require('./fixtures/issue_comment.created');
@@ -72,6 +73,15 @@ perform: true
     plugin(robot);
   });
 
+  it('resolves timezone issues with chrono-node', async () => {
+    console.log('current time', new Date());
+    console.log('timezon offset', new Date().getTimezoneOffset());
+    const parseDate = chrono.parseDate('July 1, 2018 13:30');
+    console.log('pd', util.inspect(parseDate, {depth:null}));
+    const mom = moment(parseDate);
+    console.log('mom', util.inspect(mom, {depth:null}));
+  });
+
   it('posts a generic comment', async () => {
     commentEvent.payload.comment.body = 'no action needed';
     await robot.receive(commentEvent);
@@ -92,7 +102,6 @@ perform: true
       repo: 'public-repo',
       path: '.github/probot-snooze.yml'
     });
-    console.log(github.issues.edit.calls[0].arguments);
     expect(github.issues.edit({
       number:2,
       owner: 'baxterthehacker',
@@ -105,7 +114,6 @@ perform: true
       },
         'probot:freeze']
     }));
-    console.log(util.inspect(github.issues.createComment, {depth:null}));
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
       number: 2,
