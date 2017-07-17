@@ -85,12 +85,13 @@ perform: true
   it('posts a snooze comment - no label', async () => {
     commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2018 13:30';
     await robot.receive(commentEvent);
+
     expect(github.repos.getContent).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
       repo: 'public-repo',
       path: '.github/probot-snooze.yml'
     });
-    console.log(github.issues.edit.calls);
+    console.log(github.issues.edit.calls[0].arguments);
     expect(github.issues.edit({
       number:2,
       owner: 'baxterthehacker',
