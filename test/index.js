@@ -262,7 +262,11 @@ perform: true
   });
 
   it('these tests are faulty edge cases, and here for reference', async () => {
-    // Chrono-node
+    /*
+    Chrono-node can't handle:
+    * til the 25th
+    * for a week
+    */
     const badChrono = ['snooze this thread until July 25th',
       'snooze this thread a week'];
     expect(badChrono).toExist();
