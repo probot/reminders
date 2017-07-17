@@ -44,7 +44,7 @@ module.exports = robot => {
     const freeze = await forRepository(github, repository);
     github.search.issues({q:'label:' + freeze.config.labelName, repo:repository.full_name}).then(resp => {
       resp.data.items.forEach(issue => {
-        github.issues.getComments(githubHelper.commentUrlToIssueRequest(issue.comments_url)).then(resp => {
+        github.issues.getComments(githubHelper.parseCommentURL(issue.comments_url)).then(resp => {
           return freeze.getLastFreeze(resp.data);
         }).then(lastFreezeComment => {
           if (freeze.unfreezable(lastFreezeComment)) {
