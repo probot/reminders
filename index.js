@@ -64,7 +64,7 @@ module.exports = robot => {
 
     try {
       const resp = await github.repos.getContent({owner, repo, path});
-      config = Object.assign(yaml.load(Buffer.from(resp.data.content, 'base64').toString()) || {}, {perform:true});
+      config = Object.assign(yaml.safeLoad(Buffer.from(resp.data.content, 'base64').toString()) || {}, {perform:true});
     } catch (err) {
       console.log('error', err);
       visit.stop(repository);
