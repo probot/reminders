@@ -13,7 +13,7 @@ module.exports = robot => {
   robot.on('schedule.repository', handleThaw);
 
   async function installationEvent(context) {
-    const config = await context.config('probot-snooze.yml', require('./defaults'));
+    const config = await context.config('probot-snooze.yml', require('./conf/defaults'));
 
     context.github.issues.getLabel(context.repositories_added[0]({
       name: config.labelName}).catch(() => {
@@ -25,7 +25,7 @@ module.exports = robot => {
   }
 
   async function handleFreeze(context) {
-    const config = await context.config('probot-snooze.yml', require('./defaults'));
+    const config = await context.config('probot-snooze.yml', require('./conf/defaults'));
     const freeze = new Freeze(context.github, config);
 
     const comment = context.payload.comment;
@@ -39,7 +39,7 @@ module.exports = robot => {
   }
 
   async function handleThaw(context) {
-    const config = await context.config('probot-snooze.yml', require('./defaults'));
+    const config = await context.config('probot-snooze.yml', require('./conf/defaults'));
     const freeze = new Freeze(context.github, config);
 
     context.github.search.issues({q:'label:' + freeze.config.labelName, repo:context.repo().full_name}).then(resp => {
