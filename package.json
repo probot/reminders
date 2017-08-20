@@ -14,8 +14,8 @@
     "bravey": "^0.1.2",
     "js-yaml": "^3.8.3",
     "moment": "^2.18.1",
-    "probot": "0.7.5",
-    "probot-visitor": "0.2.0"
+    "probot": "0.9.1",
+    "probot-scheduler": "1.0.2"
   },
   "devDependencies": {
     "eslint-config-probot": ">=0.1.0",
