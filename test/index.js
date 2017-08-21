@@ -1,3 +1,4 @@
+const fs = require('fs');
 const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');
@@ -42,7 +43,7 @@ perform: true
             },
             name:'public-repo'
           }, {
-            body:'@probot, we should snooze this for a while, until July 1, 2018 13:30 <!-- {"assignee":"baxterthehacker","unfreezeMoment":"2016-06-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}-->',
+            body:'@probot, we should snooze this for a while, until July 1, 2017 13:30 <!-- {"assignee":"baxterthehacker","unfreezeMoment":"2017-07-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}-->',
             user: {
               login:'probot-snooze[bot]'
             },
@@ -100,7 +101,7 @@ perform: true
   });
 
   it('posts a snooze comment - no label', async () => {
-    commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2018 13:30';
+    commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2017 13:30';
     await robot.receive(commentEvent);
 
     expect(github.repos.getContent).toHaveBeenCalledWith({
@@ -125,13 +126,13 @@ perform: true
       number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2018 :clock1: ' +
-        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2018 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
+      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: ' +
+        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
     });
   });
 
   it('posts a snooze comment - with label', async () => {
-    commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2018 13:30';
+    commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2017 13:30';
     commentEvent.payload.issue.labels.push({
       url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/probot:freeze',
       name: 'probot:freeze',
@@ -159,16 +160,16 @@ perform: true
       number:2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2018 :clock1: ' +
-        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2018 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
+      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: ' +
+        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
     });
   });
 
   it('test visitor activation', async () => {
     await robot.receive({
-      event: 'test',
+      event: 'schedule',
       payload: {
-        action: 'visit',
+        action: 'repository',
         repository: {
           owner: {
             login:'baxterthehacker'
@@ -223,7 +224,7 @@ perform: true
       {msg:'Thanks for looking into this.\n\nSo i\'m out of office for the next three weeks. I\'m going to snooze this until I get back on 07/21/17.', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('next three weeks'))}}
     ];
 
-    const freeze = new Freeze(github, {});
+    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
 
     validMessages.forEach(obj => {
       const comment = {
@@ -247,8 +248,7 @@ perform: true
     {msg:'snooze until 07/11/17 at 14:00, and "bug Seth"', props:{assignee: 'baxterthehacker', message: 'bug Seth', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 14:00'))}},
     {msg:'hey @probot, snooze this issue', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment().add(defaultFreezeDuration, 'days').format()}}
       ];
-
-    const freeze = new Freeze(github, {});
+    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
 
     msgs.forEach(obj => {
       const comment = {

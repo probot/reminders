@@ -1,5 +1,5 @@
-const yaml = require('js-yaml');
-const visitor = require('probot-visitor');
+const fs = require('fs');
+const createScheduler = require('probot-scheduler');
 const Freeze = require('./lib/freeze');
 const formatParser = require('./lib/format-parser');
 const githubHelper = require('./lib/github-helper');
@@ -9,13 +9,12 @@ const githubHelper = require('./lib/github-helper');
 module.exports = robot => {
   robot.on('integration_installation.added', installationEvent);
   robot.on('issue_comment', handleFreeze);
-  const visit = visitor(robot, {interval: 60 * 5 * 1000}, handleThaw);
-  robot.on('test.visit', async context => {
-    await handleThaw(75, context.payload.repository);
-  });
+  createScheduler(robot);
+
+  robot.on('schedule.repository', handleThaw);
 
   async function installationEvent(context) {
-    const config = await getConfig(context.github, context.payload.repository);
+    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
 
     context.github.issues.getLabel(context.repositories_added[0]({
       name: config.labelName}).catch(() => {
@@ -27,7 +26,7 @@ module.exports = robot => {
   }
 
   async function handleFreeze(context) {
-    const config = await getConfig(context.github, context.payload.repository);
+    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
     const freeze = new Freeze(context.github, config);
 
     const comment = context.payload.comment;
@@ -40,14 +39,14 @@ module.exports = robot => {
     }
   }
 
-  async function handleThaw(installation, repository) {
-    const github = await robot.auth(installation.id);
-    const config = await getConfig(github, repository);
-    const freeze = new Freeze(github, config);
+  async function handleThaw(context) {
+    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
 
-    github.search.issues({q:'label:' + freeze.config.labelName, repo:repository.full_name}).then(resp => {
+    const freeze = new Freeze(context.github, config);
+
+    context.github.search.issues({q:'label:' + freeze.config.labelName, repo:context.repo().full_name}).then(resp => {
       resp.data.items.forEach(issue => {
-        github.issues.getComments(githubHelper.parseCommentURL(issue.comments_url)).then(resp => {
+        context.github.issues.getComments(githubHelper.parseCommentURL(issue.comments_url)).then(resp => {
           return freeze.getLastFreeze(resp.data);
         }).then(lastFreezeComment => {
           if (freeze.unfreezable(lastFreezeComment)) {
@@ -56,23 +55,6 @@ module.exports = robot => {
         });
       });
     });
-    console.log('visitor/thaw run complete');
-  }
-
-  async function getConfig(github, repository) {
-    const owner = repository.owner.login;
-    const repo = repository.name;
-    const path = '.github/probot-snooze.yml';
-    let config = {};
-
-    try {
-      const resp = await github.repos.getContent({owner, repo, path});
-      config = Object.assign(yaml.safeLoad(Buffer.from(resp.data.content, 'base64').toString()) || {}, {perform:true});
-    } catch (err) {
-      console.log('error', err);
-      visit.stop(repository);
-    }
-
-    return Object.assign(config, {owner, repo, logger: robot.log});
+    console.log('scheduled thaw run complete');
   }
 };
