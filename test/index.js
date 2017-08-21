@@ -248,7 +248,7 @@ perform: true
     {msg:'snooze until 07/11/17 at 14:00, and "bug Seth"', props:{assignee: 'baxterthehacker', message: 'bug Seth', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 14:00'))}},
     {msg:'hey @probot, snooze this issue', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment().add(defaultFreezeDuration, 'days').format()}}
       ];
-    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.js', 'utf8')));
+    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
 
     msgs.forEach(obj => {
       const comment = {
