@@ -224,7 +224,7 @@ perform: true
       {msg:'Thanks for looking into this.\n\nSo i\'m out of office for the next three weeks. I\'m going to snooze this until I get back on 07/21/17.', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('next three weeks'))}}
     ];
 
-    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.js', 'utf8')));
+    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
 
     validMessages.forEach(obj => {
       const comment = {

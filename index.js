@@ -14,7 +14,7 @@ module.exports = robot => {
   robot.on('schedule.repository', handleThaw);
 
   async function installationEvent(context) {
-    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.js', 'utf8')));
+    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
 
     context.github.issues.getLabel(context.repositories_added[0]({
       name: config.labelName}).catch(() => {
@@ -26,7 +26,7 @@ module.exports = robot => {
   }
 
   async function handleFreeze(context) {
-    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.js', 'utf8')));
+    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
     const freeze = new Freeze(context.github, config);
 
     const comment = context.payload.comment;
@@ -40,7 +40,7 @@ module.exports = robot => {
   }
 
   async function handleThaw(context) {
-    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.js', 'utf8')));
+    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
 
     const freeze = new Freeze(context.github, config);
 
