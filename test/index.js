@@ -1,4 +1,4 @@
-const fs = require ('fs');
+const fs = require('fs');
 const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');

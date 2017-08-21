@@ -14,7 +14,7 @@ module.exports = robot => {
   robot.on('schedule.repository', handleThaw);
 
   async function installationEvent(context) {
-    const config = await context.config('probot-snooze.yml',  JSON.parse(fs.readFileSync('./etc/defaults.js', 'utf8')));
+    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.js', 'utf8')));
 
     context.github.issues.getLabel(context.repositories_added[0]({
       name: config.labelName}).catch(() => {
