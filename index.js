@@ -51,7 +51,7 @@ module.exports = robot => {
         context.github.issues.getComments(githubHelper.parseCommentURL(issue.comments_url)).then(resp => {
           return freeze.getLastFreeze(resp.data);
         }).then(lastFreezeComment => {
-          if (freeze.unfreezable(lastFreezeComment)) {
+          if (lastFreezeComment && freeze.unfreezable(lastFreezeComment)) {
             freeze.unfreeze(issue, formatParser.propFromComment(lastFreezeComment));
           }
         });
