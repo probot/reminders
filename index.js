@@ -57,6 +57,6 @@ module.exports = robot => {
         });
       });
     });
-    console.log('scheduled thaw run complete');
+    robot.log('scheduled thaw run complete');
   }
 };
