@@ -2,7 +2,7 @@ const createScheduler = require('probot-scheduler');
 const Freeze = require('./lib/freeze');
 const formatParser = require('./lib/format-parser');
 const githubHelper = require('./lib/github-helper');
-const defaults = require('./etc/defaults');
+const defaults = require('./lib/defaults');
 
 /* Configuration Variables */
 

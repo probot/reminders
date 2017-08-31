@@ -1,4 +1,3 @@
-const fs = require('fs');
 const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');
@@ -224,7 +223,7 @@ perform: true
       {msg:'Thanks for looking into this.\n\nSo i\'m out of office for the next three weeks. I\'m going to snooze this until I get back on 07/21/17.', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('next three weeks'))}}
     ];
 
-    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
+    const freeze = new Freeze(github, require('../lib/defaults'));
 
     validMessages.forEach(obj => {
       const comment = {
@@ -248,7 +247,7 @@ perform: true
     {msg:'snooze until 07/11/17 at 14:00, and "bug Seth"', props:{assignee: 'baxterthehacker', message: 'bug Seth', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 14:00'))}},
     {msg:'hey @probot, snooze this issue', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment().add(defaultFreezeDuration, 'days').format()}}
       ];
-    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
+    const freeze = new Freeze(github, require('../lib/defaults'));
 
     msgs.forEach(obj => {
       const comment = {
