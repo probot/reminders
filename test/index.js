@@ -1,3 +1,5 @@
+process.env.APP_ID = 1;
+
 const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');
@@ -34,29 +36,19 @@ perform: true
           }}))
       },
       issues: {
-        getComments: expect.createSpy().andReturn(Promise.resolve(
-          {data: [{
-            body:'comment 1',
-            user: {
-              login:'baxterthehacker'
-            },
-            name:'public-repo'
-          }, {
-            body:'@probot, we should snooze this for a while, until July 1, 2017 13:30 <!-- {"assignee":"baxterthehacker","unfreezeMoment":"2017-07-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}-->',
-            user: {
-              login:'probot-snooze[bot]'
-            },
-            name:'public-repo'}]
-          }
-        )), // GithubHelper.commentUrlToIssueRequest(issue.comments_url)
         createComment: expect.createSpy(),
         getLabel: null, //  Name: freeze.labelName
         createLabel: expect.createSpy(), // Name: freeze.config.labelName,          color: freeze.config.labelColor
-        edit: expect.createSpy()
+        edit: expect.createSpy(),
+        get: expect.createSpy().andReturn(Promise.resolve({data: {
+          body: 'hello world'
+        }}))
       },
       search: {
         issues: expect.createSpy().andReturn(Promise.resolve({
-          data:{items: [{comments_url:'https://api.github.com/repos/baxterthehacker/public-repo/issues/2/comments',
+          data:{items: [{
+            body: 'hello world\n\n<!-- probot = {"1":{"snooze":{"assignee":"baxterthehacker","unfreezeMoment":"2017-07-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}}} -->',
+            number: 2,
             labels:[{
               url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/probot:freeze',
               name: 'probot:freeze',
@@ -108,7 +100,7 @@ perform: true
       repo: 'public-repo',
       path: '.github/probot-snooze.yml'
     });
-    expect(github.issues.edit({
+    expect(github.issues.edit).toHaveBeenCalledWith({
       number:2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
@@ -119,14 +111,26 @@ perform: true
         color: 'fc2929'
       },
         'probot:freeze']
-    }));
+    });
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
       number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: ' +
-        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
+      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: '
+    });
+
+    const params = {
+      assignee:'baxterthehacker',
+      unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'),
+      message:'Hey, we\'re back awake!'
+    };
+
+    expect(github.issues.edit).toHaveBeenCalledWith({
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      number: 2,
+      body: `hello world\n\n<!-- probot = {"1":{"snooze":${JSON.stringify(params)}}} -->`
     });
   });
 
@@ -159,8 +163,20 @@ perform: true
       number:2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: ' +
-        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
+      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: '
+    });
+
+    const params = {
+      assignee:'baxterthehacker',
+      unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'),
+      message:'Hey, we\'re back awake!'
+    };
+
+    expect(github.issues.edit).toHaveBeenCalledWith({
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      number: 2,
+      body: `hello world\n\n<!-- probot = {"1":{"snooze":${JSON.stringify(params)}}} -->`
     });
   });
 
@@ -183,18 +199,17 @@ perform: true
       repo: 'public-repo',
       path: '.github/probot-snooze.yml'
     });
-
     expect(github.issues.edit).toHaveBeenCalledWith({
       labels: [],
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      number: '2',
+      number: 2,
       state: 'open'
     });
     expect(github.issues.createComment).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      number: '2',
+      number: 2,
       body: ':wave: @baxterthehacker, Hey, we\'re back awake!'
     });
   });
