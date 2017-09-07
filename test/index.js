@@ -1,3 +1,5 @@
+process.env.APP_ID = 1;
+
 const fs = require('fs');
 const expect = require('expect');
 const {createRobot} = require('probot');
@@ -53,7 +55,10 @@ perform: true
         createComment: expect.createSpy(),
         getLabel: null, //  Name: freeze.labelName
         createLabel: expect.createSpy(), // Name: freeze.config.labelName,          color: freeze.config.labelColor
-        edit: expect.createSpy()
+        edit: expect.createSpy(),
+        get: expect.createSpy().andReturn(Promise.resolve({data: {
+          body: 'hello world'
+        }}))
       },
       search: {
         issues: expect.createSpy().andReturn(Promise.resolve({
@@ -109,7 +114,7 @@ perform: true
       repo: 'public-repo',
       path: '.github/probot-snooze.yml'
     });
-    expect(github.issues.edit({
+    expect(github.issues.edit).toHaveBeenCalledWith({
       number:2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
@@ -120,14 +125,26 @@ perform: true
         color: 'fc2929'
       },
         'probot:freeze']
-    }));
+    });
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
       number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: ' +
-        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
+      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: '
+    });
+
+    const params = {
+      assignee:'baxterthehacker',
+      unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'),
+      message:'Hey, we\'re back awake!'
+    };
+
+    expect(github.issues.edit).toHaveBeenCalledWith({
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      number: 2,
+      body: `hello world\n\n<!-- probot = {"1":{"snooze":${JSON.stringify(params)}}} -->`
     });
   });
 
@@ -160,8 +177,20 @@ perform: true
       number:2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: ' +
-        '<!-- ' + JSON.stringify({assignee:'baxterthehacker', unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'), message:'Hey, we\'re back awake!'}) + '-->'
+      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: '
+    });
+
+    const params = {
+      assignee:'baxterthehacker',
+      unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'),
+      message:'Hey, we\'re back awake!'
+    };
+
+    expect(github.issues.edit).toHaveBeenCalledWith({
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      number: 2,
+      body: `hello world\n\n<!-- probot = {"1":{"snooze":${JSON.stringify(params)}}} -->`
     });
   });
 
