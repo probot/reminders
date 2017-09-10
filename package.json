@@ -10,10 +10,10 @@
     "test": "mocha && xo --extend probot"
   },
   "dependencies": {
-    "chrono-node": "^1.3.4",
     "bravey": "^0.1.2",
+    "chrono-node": "^1.3.4",
     "moment": "^2.18.1",
-    "probot": "0.9.1",
+    "probot": "^0.11.0",
     "probot-scheduler": "1.0.2"
   },
   "devDependencies": {
