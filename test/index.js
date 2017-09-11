@@ -24,10 +24,8 @@ describe('PRobot-Snooze ', () => {
       repos: {
         // Response for getting content from '.github/probot-freeze.yml'
         getContent: expect.createSpy().andReturn(Promise.resolve({
-          data:{content: Buffer.from(`#label applied to frozen issues. This is what the bot uses for its source of truth
-labelName: 'probot:freeze'
-`).toString('base64')
-          }}))
+          data:{content: Buffer.from(`reminders:\n  label: reminder'`).toString('base64')}
+        }))
       },
       issues: {
         createComment: expect.createSpy(),
@@ -44,8 +42,8 @@ labelName: 'probot:freeze'
             body: 'hello world\n\n<!-- probot = {"1":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->',
             number: 2,
             labels:[{
-              url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/probot:freeze',
-              name: 'probot:freeze',
+              url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/reminder',
+              name: 'reminder',
               color: 'fc2929'
             }]}]
           }})) // Q:'label:' + this.labelName
@@ -75,7 +73,7 @@ labelName: 'probot:freeze'
         name: 'bug',
         color: 'fc2929'
       },
-        'probot:freeze']
+        'reminder']
     }));
 
     const params = {
@@ -116,7 +114,7 @@ labelName: 'probot:freeze'
     expect(github.repos.getContent).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      path: '.github/probot-snooze.yml'
+      path: '.github/config.yml'
     });
     expect(github.issues.edit).toHaveBeenCalledWith({
       labels: [],

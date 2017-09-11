@@ -1,8 +1,0 @@
-# Default length (in days) to freeze an item if no date is specified
-defaultFreezeDuration: 7,
-
-#label applied to frozen issues. This is what the bot uses for its source of truth
-labelName : 'probot:snooze',
-
-# label color
-labelColor : 'gray'
