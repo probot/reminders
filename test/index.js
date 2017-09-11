@@ -5,14 +5,17 @@ const plugin = require('..');
 const moment = require('moment');
 const chrono = require('chrono-node');
 const Freeze = require('../lib/freeze.js');
-const commentEvent = require('./fixtures/issue_comment.created');
 
 describe('PRobot-Snooze ', () => {
   let robot;
   let github;
+  let commentEvent;
 
   beforeEach(() => {
     robot = createRobot();
+
+    // Deep clone so later modifications don't mutate this.
+    commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')));
 
     // Load the plugin
     // Mock out the GitHub API
@@ -142,7 +145,8 @@ perform: true
       repo: 'public-repo',
       path: '.github/probot-snooze.yml'
     });
-    expect(github.issues.edit({
+
+    expect(github.issues.edit).toHaveBeenCalledWith({
       number:2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
@@ -153,7 +157,7 @@ perform: true
         color: 'fc2929'
       },
         'probot:freeze']
-    }));
+    });
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
       number: 2,
