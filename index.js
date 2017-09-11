@@ -25,23 +25,9 @@ module.exports = robot => {
     }
   });
 
-  robot.on('integration_installation.added', installationEvent);
-
   createScheduler(robot);
 
   robot.on('schedule.repository', handleThaw);
-
-  async function installationEvent(context) {
-    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
-
-    context.github.issues.getLabel(context.repositories_added[0]({
-      name: config.labelName}).catch(() => {
-        return context.github.issues.createLabel(context.repositories_added[0]({
-          name: config.labelName,
-          color: config.labelColor
-        }));
-      }));
-  }
 
   async function handleThaw(context) {
     const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));

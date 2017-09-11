@@ -9,14 +9,8 @@
 Configuration in `.github/probot-snooze.yml` can override these defaults:
 
 ```yml
-# Default length (in days) to snooze an item if no date is specified
-defaultSnoozeDuration: 7,
-
 #label applied to snoozed issues. This is what the bot uses for its source of truth
 labelName : 'probot:snooze',
-
-# label color
-labelColor : 'gray'
 ```
 ## Setup
 

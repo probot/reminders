@@ -24,13 +24,8 @@ describe('PRobot-Snooze ', () => {
       repos: {
         // Response for getting content from '.github/probot-freeze.yml'
         getContent: expect.createSpy().andReturn(Promise.resolve({
-          data:{content: Buffer.from(`# Default length (in days) to freeze an item if no date is specified
-defaultFreezeDuration: 7
-#label applied to frozen issues. This is what the bot uses for its source of truth
+          data:{content: Buffer.from(`#label applied to frozen issues. This is what the bot uses for its source of truth
 labelName: 'probot:freeze'
-# label color
-labelColor: 'gray'
-perform: true
 `).toString('base64')
           }}))
       },
