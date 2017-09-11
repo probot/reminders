@@ -1,10 +1,7 @@
-const fs = require('fs');
 const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');
-const moment = require('moment');
 const chrono = require('chrono-node');
-const Freeze = require('../lib/freeze.js');
 
 describe('PRobot-Snooze ', () => {
   let robot;
@@ -68,17 +65,6 @@ perform: true
     commentEvent.payload.installation.id = 1;
   });
 
-  it('posts a generic comment', async () => {
-    commentEvent.payload.comment.body = 'no action needed';
-    await robot.receive(commentEvent);
-    expect(github.repos.getContent).toHaveBeenCalledWith({
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      path: '.github/probot-snooze.yml'
-    });
-    expect(github.issues.createComment).toNotHaveBeenCalled();
-  });
-
   it('sets a reminder with slash commands', async () => {
     commentEvent.payload.comment.body = 'I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017';
 
@@ -118,96 +104,6 @@ perform: true
     });
   });
 
-  it('posts a snooze comment - no label', async () => {
-    commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2017 13:30';
-    await robot.receive(commentEvent);
-
-    expect(github.repos.getContent).toHaveBeenCalledWith({
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      path: '.github/probot-snooze.yml'
-    });
-
-    expect(github.issues.edit).toHaveBeenCalledWith({
-      number:2,
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      state: 'closed',
-      labels:[{
-        url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
-        name: 'bug',
-        color: 'fc2929'
-      },
-        'probot:freeze']
-    });
-
-    expect(github.issues.createComment).toHaveBeenCalledWith({
-      number: 2,
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: '
-    });
-
-    const params = {
-      assignee:'baxterthehacker',
-      unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'),
-      message:'Hey, we\'re back awake!'
-    };
-
-    expect(github.issues.edit).toHaveBeenCalledWith({
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      number: 2,
-      body: `hello world\n\n<!-- probot = {"1":${JSON.stringify(params)}} -->`
-    });
-  });
-
-  it('posts a snooze comment - with label', async () => {
-    commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2017 13:30';
-    commentEvent.payload.issue.labels.push({
-      url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/probot:freeze',
-      name: 'probot:freeze',
-      color: 'cccccc'
-    });
-    await robot.receive(commentEvent);
-    expect(github.repos.getContent).toHaveBeenCalledWith({
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      path: '.github/probot-snooze.yml'
-    });
-    expect(github.issues.edit({
-      number:2,
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      state: 'closed',
-      labels:[{
-        url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
-        name: 'bug',
-        color: 'fc2929'
-      },
-        'probot:freeze']
-    }));
-    expect(github.issues.createComment).toHaveBeenCalledWith({
-      number:2,
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: '
-    });
-
-    const params = {
-      assignee:'baxterthehacker',
-      unfreezeMoment :chrono.parseDate('July 1, 2017 13:30'),
-      message:'Hey, we\'re back awake!'
-    };
-
-    expect(github.issues.edit).toHaveBeenCalledWith({
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      number: 2,
-      body: `hello world\n\n<!-- probot = {"1":${JSON.stringify(params)}} -->`
-    });
-  });
-
   it('test visitor activation', async () => {
     await robot.receive({
       event: 'schedule',
@@ -240,94 +136,5 @@ perform: true
       number: 2,
       body: ':wave: @baxterthehacker, Hey, we\'re back awake!'
     });
-  });
-
-  it('test valid comments', async () => {
-    const defaultFreezeDuration = 7;
-    const validMessages = [
-      {msg:'@probot, snooze this message until 08/01/2018. Then remind me about this test', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(new Date('08/01/2018 12:00'))}},
-     {msg:'snooze this issue', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment().add(defaultFreezeDuration, 'days').format()}},
-      {msg:'snooze this thread until next Tuesday', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('next Tuesday'))}},
-      {msg:'snooze this thread til next Friday', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('next Friday'))}},
-      {msg:'snooze this until tomorrow at noon', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('this until tomorrow at noon'))}},
-      {msg:'snooze this until tomorrow at 2:00pm', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('tomorrow at 2:00pm'))}},
-    /* Various date format parsing */
-     {msg:'snooze until 07/11/17 at 12:00am', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 12:00am'))}},
-      {msg:'snooze until 07/11/17 at 2pm', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 2pm'))}},
-      {msg:'snooze until 07/11/17 at 2:00pm', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 2:00pm'))}},
-      {msg:'snooze until 07/11/17 at 2:30pm', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 2:30pm'))}},
-      {msg:'snooze until 07/11/17 at 14:00', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 14:00'))}},
-      {msg:'snooze until 07/11/17 at 14:30', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 14:30'))}},
-      {msg:'snooze until 07/11/17', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('07/11/17'))}},
-      {msg:'freeze until 07/11/17 14:00', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('07/11/17 14:00'))}},
-    /* Full text */
-      {msg:'So i\'m out of office for the next three weeks. I\'m going to snooze this until I get back.', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('next three weeks'))}},
-      {msg:'So i\'m out of office for the next three weeks. I\'m going to snooze this until I get back on 07/21/17.', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('next three weeks'))}},
-      {msg:'Thanks for looking into this.\n\nSo i\'m out of office for the next three weeks. I\'m going to snooze this until I get back on 07/21/17.', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment(chrono.parseDate('next three weeks'))}}
-    ];
-
-    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
-
-    validMessages.forEach(obj => {
-      const comment = {
-        user: {
-          login: 'baxterthehacker'
-        },
-        body:obj.msg
-      };
-      expect(freeze.freezable(comment)).toBe(true);
-      expect(freeze.propsHelper(comment.user.login, comment.body)).toEqual(obj.props);
-    });
-  });
-
-  /* With open comment */
-  it('test valid comments with responses', async () => {
-    const defaultFreezeDuration = 7;
-
-    const msgs =
-      [{msg:'snooze until 07/11/17 at 14:00, and remind me to bug Seth again', props:{assignee: 'baxterthehacker', message: 'bug Seth again', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 14:00'))}},
-    {msg:'snooze until 07/11/17 at 14:00 to bug Seth', props:{assignee: 'baxterthehacker', message: 'bug Seth', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 14:00'))}},
-    {msg:'snooze until 07/11/17 at 14:00, and "bug Seth"', props:{assignee: 'baxterthehacker', message: 'bug Seth', unfreezeMoment: moment(chrono.parseDate('07/11/17 at 14:00'))}},
-    {msg:'hey @probot, snooze this issue', props:{assignee: 'baxterthehacker', message: 'Hey, we\'re back awake!', unfreezeMoment: moment().add(defaultFreezeDuration, 'days').format()}}
-      ];
-    const freeze = new Freeze(github, JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
-
-    msgs.forEach(obj => {
-      const comment = {
-        user: {
-          login: 'baxterthehacker'
-        },
-        body:obj.msg
-      };
-      expect(freeze.freezable(comment)).toBe(true);
-      expect(freeze.propsHelper(comment.user.login, comment.body)).toEqual(obj.props);
-    });
-  });
-  it('test invalid comments', async () => {
-    const invalidMessages = [
-      {msg:'it\'s really cold out tonight, hope you don\'t freeze', props:{}}
-    ];
-    const freeze = new Freeze(github, {});
-
-    invalidMessages.forEach(obj => {
-      const comment = {
-        user: {
-          login: 'baxterthehacker'
-        },
-        body:obj.msg
-      };
-      expect(freeze.freezable(comment)).toBe(false);
-    });
-  });
-
-  it('these tests are faulty edge cases, and here for reference', async () => {
-    /*
-    Chrono-node can't handle:
-    * til the 25th
-    * for a week
-    */
-    const badChrono = ['snooze this thread until July 25th',
-      'snooze this thread a week'];
-    expect(badChrono).toExist();
   });
 });

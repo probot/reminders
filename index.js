@@ -31,7 +31,6 @@ module.exports = robot => {
 
   robot.on('integration_installation.added', installationEvent);
 
-  robot.on('issue_comment', handleFreeze);
   createScheduler(robot);
 
   robot.on('schedule.repository', handleThaw);
@@ -46,20 +45,6 @@ module.exports = robot => {
           color: config.labelColor
         }));
       }));
-  }
-
-  async function handleFreeze(context) {
-    const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
-    const freeze = new Freeze(context.github, config);
-
-    const comment = context.payload.comment;
-    freeze.config.perform = true;
-    if (freeze.config.perform && !context.isBot && freeze.freezable(comment)) {
-      freeze.freeze(
-        context,
-        freeze.propsHelper(comment.user.login, comment.body)
-    );
-    }
   }
 
   async function handleThaw(context) {

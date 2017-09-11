@@ -10,7 +10,6 @@
     "test": "mocha && xo --extend probot"
   },
   "dependencies": {
-    "bravey": "^0.1.2",
     "chrono-node": "^1.3.4",
     "moment": "^2.18.1",
     "parse-reminder": "^1.0.0",
