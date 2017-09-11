@@ -4,32 +4,27 @@ const Freeze = require('./lib/freeze');
 const formatParser = require('./lib/format-parser');
 const githubHelper = require('./lib/github-helper');
 const parseReminder = require('./lib/reminder');
+const commands = require('./lib/commands');
 
 /* Configuration Variables */
 
 module.exports = robot => {
-  robot.on('issue_comment.created', async function remind(context) {
-    const comment = context.payload.comment;
-    const command = comment.body.match(/^\/([\w]+) (.*)$/m);
+  commands(robot, 'remind', async (context, command) => {
+    const reminder = parseReminder(command.name + ' ' + command.arguments);
 
-    if(command) {
-      console.log("SLASH COMMAND!", command[1], command[2]);
-      const reminder = parseReminder(command[1] + ' ' + command[2])
-
-      if(reminder) {
-        if(reminder.who == 'me') {
-          reminder.who = comment.user.login;
-        }
-
-        const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
-        const freeze = new Freeze(context.github, config);
-
-        freeze.freeze(context, {
-          assignee: reminder.who,
-          unfreezeMoment: reminder.when,
-          message: reminder.what
-        });
+    if (reminder) {
+      if (reminder.who === 'me') {
+        reminder.who = context.payload.comment.user.login;
       }
+
+      const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
+      const freeze = new Freeze(context.github, config);
+
+      freeze.freeze(context, {
+        assignee: reminder.who,
+        unfreezeMoment: reminder.when,
+        message: reminder.what
+      });
     }
   });
 
