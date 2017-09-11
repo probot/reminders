@@ -21,11 +21,7 @@ module.exports = robot => {
       const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
       const freeze = new Freeze(context.github, config);
 
-      freeze.freeze(context, {
-        assignee: reminder.who,
-        unfreezeMoment: reminder.when,
-        message: reminder.what
-      });
+      freeze.freeze(context, reminder);
     }
   });
 

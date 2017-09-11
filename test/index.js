@@ -46,7 +46,7 @@ perform: true
       search: {
         issues: expect.createSpy().andReturn(Promise.resolve({
           data:{items: [{
-            body: 'hello world\n\n<!-- probot = {"1":{"assignee":"baxterthehacker","unfreezeMoment":"2017-07-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}} -->',
+            body: 'hello world\n\n<!-- probot = {"1":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->',
             number: 2,
             labels:[{
               url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/probot:freeze',
@@ -84,9 +84,9 @@ perform: true
     }));
 
     const params = {
-      assignee:'baxterthehacker',
-      unfreezeMoment :chrono.parseDate('July 1, 2017'),
-      message:'check the spinaker'
+      who:'baxterthehacker',
+      what:'check the spinaker',
+      when :chrono.parseDate('July 1, 2017')
     };
 
     expect(github.issues.edit).toHaveBeenCalledWith({
