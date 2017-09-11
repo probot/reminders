@@ -100,6 +100,39 @@ perform: true
     expect(github.issues.createComment).toNotHaveBeenCalled();
   });
 
+  it('sets a reminder with slash commands', async () => {
+    commentEvent.payload.comment.body = 'I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017';
+
+    await robot.receive(commentEvent);
+
+    expect(github.issues.edit({
+      number:2,
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      state: 'closed',
+      labels:[{
+        url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
+        name: 'bug',
+        color: 'fc2929'
+      },
+        'probot:freeze']
+    }));
+
+    const params = {
+      assignee:'baxterthehacker',
+      unfreezeMoment :chrono.parseDate('July 1, 2017'),
+      message:'check the spinaker'
+    };
+
+    expect(github.issues.createComment).toHaveBeenCalledWith({
+      number: 2,
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: ' +
+        '<!-- ' + JSON.stringify(params) + '-->'
+    });
+  });
+
   it('posts a snooze comment - no label', async () => {
     commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2017 13:30';
     await robot.receive(commentEvent);

@@ -3,11 +3,38 @@ const createScheduler = require('probot-scheduler');
 const Freeze = require('./lib/freeze');
 const formatParser = require('./lib/format-parser');
 const githubHelper = require('./lib/github-helper');
+const parseReminder = require('./lib/reminder');
 
 /* Configuration Variables */
 
 module.exports = robot => {
+  robot.on('issue_comment.created', async function remind(context) {
+    const comment = context.payload.comment;
+    const command = comment.body.match(/^\/([\w]+) (.*)$/m);
+
+    if(command) {
+      console.log("SLASH COMMAND!", command[1], command[2]);
+      const reminder = parseReminder(command[1] + ' ' + command[2])
+
+      if(reminder) {
+        if(reminder.who == 'me') {
+          reminder.who = comment.user.login;
+        }
+
+        const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
+        const freeze = new Freeze(context.github, config);
+
+        freeze.freeze(context, {
+          assignee: reminder.who,
+          unfreezeMoment: reminder.when,
+          message: reminder.what
+        });
+      }
+    }
+  });
+
   robot.on('integration_installation.added', installationEvent);
+
   robot.on('issue_comment', handleFreeze);
   createScheduler(robot);
 
