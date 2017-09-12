@@ -50,7 +50,7 @@ module.exports = robot => {
       // Issue objects from the API don't include owner/repo params, so
       // setting them here with `context.repo` so we don't have to worry
       // about it later. :/
-      return freeze.checkUnfreeze(context.repo(issue));
+      return freeze.checkUnfreeze(context, context.repo(issue));
     }));
     robot.log('scheduled thaw run complete');
   }
