@@ -7,7 +7,7 @@ const Freeze = require('./lib/freeze');
 const formatParser = require('./lib/format-parser');
 const githubHelper = require('./lib/github-helper');
 const parseReminder = require('parse-reminder');
-const commands = require('./lib/commands');
+const commands = require('probot-commands');
 
 /* Configuration Variables */
 
