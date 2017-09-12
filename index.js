@@ -1,13 +1,13 @@
 // Use UTC for for all Date parsing
-process.env.TZ = 'UTC'
+process.env.TZ = 'UTC';
 
 const fs = require('fs');
+const parseReminder = require('parse-reminder');
 const createScheduler = require('probot-scheduler');
+const commands = require('probot-commands');
 const Freeze = require('./lib/freeze');
 const formatParser = require('./lib/format-parser');
 const githubHelper = require('./lib/github-helper');
-const parseReminder = require('parse-reminder');
-const commands = require('probot-commands');
 
 /* Configuration Variables */
 
