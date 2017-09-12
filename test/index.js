@@ -1,5 +1,3 @@
-process.env.APP_ID = 1;
-
 const fs = require('fs');
 const expect = require('expect');
 const {createRobot} = require('probot');
@@ -48,7 +46,7 @@ perform: true
       search: {
         issues: expect.createSpy().andReturn(Promise.resolve({
           data:{items: [{
-            body: 'hello world\n\n<!-- probot = {"1":{"snooze":{"assignee":"baxterthehacker","unfreezeMoment":"2017-07-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}}} -->',
+            body: 'hello world\n\n<!-- probot = {"1":{"assignee":"baxterthehacker","unfreezeMoment":"2017-07-01T17:30:00.000Z","message":"Hey, we\'re back awake!"}} -->',
             number: 2,
             labels:[{
               url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/probot:freeze',
@@ -63,6 +61,8 @@ perform: true
     robot.auth = () => Promise.resolve(github);
 
     plugin(robot);
+
+    commentEvent.payload.installation.id = 1;
   });
 
   it('resolves timezone issues with chrono-node', async () => {
@@ -131,7 +131,7 @@ perform: true
       owner: 'baxterthehacker',
       repo: 'public-repo',
       number: 2,
-      body: `hello world\n\n<!-- probot = {"1":{"snooze":${JSON.stringify(params)}}} -->`
+      body: `hello world\n\n<!-- probot = {"1":${JSON.stringify(params)}} -->`
     });
   });
 
@@ -177,7 +177,7 @@ perform: true
       owner: 'baxterthehacker',
       repo: 'public-repo',
       number: 2,
-      body: `hello world\n\n<!-- probot = {"1":{"snooze":${JSON.stringify(params)}}} -->`
+      body: `hello world\n\n<!-- probot = {"1":${JSON.stringify(params)}} -->`
     });
   });
 
@@ -193,7 +193,7 @@ perform: true
           name:'public-repo'
         },
         installation: {
-          id: 13055
+          id: 1
         }}});
     expect(github.repos.getContent).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
