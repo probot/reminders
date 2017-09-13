@@ -1,11 +1,36 @@
+// Use UTC for for all Date parsing
+process.env.TZ = 'UTC';
+
 const fs = require('fs');
+const parseReminder = require('parse-reminder');
 const createScheduler = require('probot-scheduler');
+const commands = require('probot-commands');
 const Freeze = require('./lib/freeze');
 
 /* Configuration Variables */
 
 module.exports = robot => {
+  commands(robot, 'remind', async (context, command) => {
+    const reminder = parseReminder(command.name + ' ' + command.arguments);
+
+    if (reminder) {
+      if (reminder.who === 'me') {
+        reminder.who = context.payload.comment.user.login;
+      }
+
+      const config = await context.config('probot-snooze.yml', JSON.parse(fs.readFileSync('./etc/defaults.json', 'utf8')));
+      const freeze = new Freeze(context.github, config);
+
+      freeze.freeze(context, {
+        assignee: reminder.who,
+        unfreezeMoment: reminder.when,
+        message: reminder.what
+      });
+    }
+  });
+
   robot.on('integration_installation.added', installationEvent);
+
   robot.on('issue_comment', handleFreeze);
   createScheduler(robot);
 

@@ -5,14 +5,17 @@ const plugin = require('..');
 const moment = require('moment');
 const chrono = require('chrono-node');
 const Freeze = require('../lib/freeze.js');
-const commentEvent = require('./fixtures/issue_comment.created');
 
 describe('PRobot-Snooze ', () => {
   let robot;
   let github;
+  let commentEvent;
 
   beforeEach(() => {
     robot = createRobot();
+
+    // Deep clone so later modifications don't mutate this.
+    commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')));
 
     // Load the plugin
     // Mock out the GitHub API
@@ -65,22 +68,6 @@ perform: true
     commentEvent.payload.installation.id = 1;
   });
 
-  it('resolves timezone issues with chrono-node', async () => {
-/*  Save this code unless we need to review later
-
-    console.log('current time', new Date());
-    console.log('timezon offset', new Date().getTimezoneOffset());
-    // PD reads the date as local.
-    const parseDate = chrono.parseDate('July 1, 2018 13:30');
-    console.log('pd', util.inspect(parseDate, {depth:null}));
-    const mom = moment(parseDate);
-    // Moment returns the date in local
-    console.log('mom', util.inspect(mom, {depth:null}));
-    mom.add(new Date().getTimezoneOffset(), 'minutes');
-    console.log('mom in UTC', util.inspect(mom, {depth:null}));
-    */
-  });
-
   it('posts a generic comment', async () => {
     commentEvent.payload.comment.body = 'no action needed';
     await robot.receive(commentEvent);
@@ -92,6 +79,45 @@ perform: true
     expect(github.issues.createComment).toNotHaveBeenCalled();
   });
 
+  it('sets a reminder with slash commands', async () => {
+    commentEvent.payload.comment.body = 'I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017';
+
+    await robot.receive(commentEvent);
+
+    expect(github.issues.edit({
+      number:2,
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      state: 'closed',
+      labels:[{
+        url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
+        name: 'bug',
+        color: 'fc2929'
+      },
+        'probot:freeze']
+    }));
+
+    const params = {
+      assignee:'baxterthehacker',
+      unfreezeMoment :chrono.parseDate('July 1, 2017'),
+      message:'check the spinaker'
+    };
+
+    expect(github.issues.edit).toHaveBeenCalledWith({
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      number: 2,
+      body: `hello world\n\n<!-- probot = {"1":${JSON.stringify(params)}} -->`
+    });
+
+    expect(github.issues.createComment).toHaveBeenCalledWith({
+      number: 2,
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: '
+    });
+  });
+
   it('posts a snooze comment - no label', async () => {
     commentEvent.payload.comment.body = '@probot, we should snooze this for a while, until July 1, 2017 13:30';
     await robot.receive(commentEvent);
@@ -101,6 +127,7 @@ perform: true
       repo: 'public-repo',
       path: '.github/probot-snooze.yml'
     });
+
     expect(github.issues.edit).toHaveBeenCalledWith({
       number:2,
       owner: 'baxterthehacker',
