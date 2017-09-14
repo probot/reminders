@@ -1,8 +1,6 @@
 const fs = require('fs');
 const createScheduler = require('probot-scheduler');
 const Freeze = require('./lib/freeze');
-const formatParser = require('./lib/format-parser');
-const githubHelper = require('./lib/github-helper');
 
 /* Configuration Variables */
 
@@ -46,17 +44,14 @@ module.exports = robot => {
     const {owner, repo} = context.repo();
     const q = `label:"${freeze.config.labelName}" repo:${owner}/${repo}`;
 
-    context.github.search.issues({q}).then(resp => {
-      resp.data.items.forEach(issue => {
-        context.github.issues.getComments(githubHelper.parseCommentURL(issue.comments_url)).then(resp => {
-          return freeze.getLastFreeze(resp.data);
-        }).then(lastFreezeComment => {
-          if (freeze.unfreezable(lastFreezeComment)) {
-            freeze.unfreeze(issue, formatParser.propFromComment(lastFreezeComment));
-          }
-        });
-      });
-    });
-    console.log('scheduled thaw run complete');
+    const resp = await context.github.search.issues({q});
+
+    await Promise.all(resp.data.items.map(issue => {
+      // Issue objects from the API don't include owner/repo params, so
+      // setting them here with `context.repo` so we don't have to worry
+      // about it later. :/
+      return freeze.checkUnfreeze(context, context.repo(issue));
+    }));
+    robot.log('scheduled thaw run complete');
   }
 };
