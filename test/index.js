@@ -3,7 +3,7 @@ const {createRobot} = require('probot');
 const plugin = require('..');
 const chrono = require('chrono-node');
 
-describe('PRobot-Snooze ', () => {
+describe('reminders', () => {
   let robot;
   let github;
   let commentEvent;

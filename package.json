@@ -1,10 +1,10 @@
 {
-  "name": "probot-snooze",
+  "name": "probot-reminders",
   "version": "1.0.0",
-  "description": "a GitHub integration that temporarily closes issues and pull requests on demand. It will reopen then in the future as specified",
+  "description": "reminders for GitHub Issues and Pull Requests",
   "author": "Jamie Jones",
   "license": "ISC",
-  "repository": "https://github.com/jbjonesjr/probot-snooze.git",
+  "repository": "https://github.com/probot/probot-reminders.git",
   "scripts": {
     "start": "probot run ./index.js",
     "test": "mocha && xo --extend probot"
