@@ -93,7 +93,7 @@ describe('reminders', () => {
       number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      body: 'Sure thing. I\'ll close this issue for a bit. I\'ll ping you around 07/01/2017 :clock1: '
+      body: '@baxterthehacker set a reminder for **07/01/2017**'
     });
   });
 
