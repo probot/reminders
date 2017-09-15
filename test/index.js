@@ -22,15 +22,13 @@ describe('reminders', () => {
       },
       paginate: expect.createSpy(),
       repos: {
-        // Response for getting content from '.github/probot-freeze.yml'
+        // Response for getting content from '.github/config.yml'
         getContent: expect.createSpy().andReturn(Promise.resolve({
-          data:{content: Buffer.from(`reminders:\n  label: reminder'`).toString('base64')}
+          data:{content: Buffer.from(`reminders:\n  label: reminder`).toString('base64')}
         }))
       },
       issues: {
         createComment: expect.createSpy(),
-        getLabel: null, //  Name: freeze.labelName
-        createLabel: expect.createSpy(), // Name: freeze.config.labelName,          color: freeze.config.labelColor
         edit: expect.createSpy(),
         get: expect.createSpy().andReturn(Promise.resolve({data: {
           body: 'hello world'
@@ -63,18 +61,17 @@ describe('reminders', () => {
 
     await robot.receive(commentEvent);
 
-    expect(github.issues.edit({
+    expect(github.issues.edit).toHaveBeenCalledWith({
       number:2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      state: 'closed',
       labels:[{
         url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
         name: 'bug',
         color: 'fc2929'
       },
         'reminder']
-    }));
+    });
 
     const params = {
       who:'baxterthehacker',
