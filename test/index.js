@@ -94,6 +94,24 @@ describe('reminders', () => {
     });
   });
 
+  it('sets a reminder with slash commands', async () => {
+    commentEvent.payload.comment.body = '/remind nope';
+
+    try {
+      await robot.receive(commentEvent);
+      throw new Error('Expected error but none was raised');
+    } catch (err) {
+      expect(err.message).toEqual('Unable to parse reminder: remind nope');
+    }
+
+    expect(github.issues.createComment).toHaveBeenCalledWith({
+      number: 2,
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      body: '@baxterthehacker we had trouble parsing your reminder. Try:\n\n`/remind me [what] [when]`'
+    });
+  });
+
   it('test visitor activation', async () => {
     await robot.receive({
       event: 'schedule',
