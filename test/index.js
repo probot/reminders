@@ -1,4 +1,4 @@
-process.env.TZ = 'UTC'
+process.env.TZ = 'UTC';
 
 const expect = require('expect');
 const {createRobot} = require('probot');
@@ -78,7 +78,7 @@ describe('reminders', () => {
     const params = {
       who:'baxterthehacker',
       what:'check the spinaker',
-      when :chrono.parseDate('July 1, 2017')
+      when: chrono.parseDate('July 1, 2017 9:00am')
     };
 
     expect(github.issues.edit).toHaveBeenCalledWith({
