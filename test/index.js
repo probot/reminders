@@ -1,3 +1,5 @@
+process.env.TZ = 'UTC'
+
 const expect = require('expect');
 const {createRobot} = require('probot');
 const plugin = require('..');
