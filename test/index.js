@@ -9,12 +9,34 @@ describe('reminders', () => {
   let robot;
   let github;
   let commentEvent;
+  let issue;
+
+  const scheduleEvent = {
+    event: 'schedule',
+    payload: {
+      action: 'repository',
+      repository: {
+        owner: {login:'baxterthehacker'},
+        name:'public-repo'
+      },
+      installation: {id: 1}
+    }
+  };
 
   beforeEach(() => {
     robot = createRobot();
 
     // Deep clone so later modifications don't mutate this.
     commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')));
+    issue = {
+      body: 'hello world\n\n<!-- probot = {"1":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->',
+      number: 2,
+      labels:[{
+        url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/reminder',
+        name: 'reminder',
+        color: 'fc2929'
+      }]
+    };
 
     // Load the plugin
     // Mock out the GitHub API
@@ -34,19 +56,13 @@ describe('reminders', () => {
         edit: expect.createSpy(),
         get: expect.createSpy().andReturn(Promise.resolve({data: {
           body: 'hello world'
-        }}))
+        }})),
+        removeLabel: expect.createSpy()
       },
       search: {
         issues: expect.createSpy().andReturn(Promise.resolve({
-          data:{items: [{
-            body: 'hello world\n\n<!-- probot = {"1":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->',
-            number: 2,
-            labels:[{
-              url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/reminder',
-              name: 'reminder',
-              color: 'fc2929'
-            }]}]
-          }})) // Q:'label:' + this.labelName
+          data:{items: [issue]}
+        })) // Q:'label:' + this.labelName
       }
     };
 
@@ -115,19 +131,8 @@ describe('reminders', () => {
   });
 
   it('test visitor activation', async () => {
-    await robot.receive({
-      event: 'schedule',
-      payload: {
-        action: 'repository',
-        repository: {
-          owner: {
-            login:'baxterthehacker'
-          },
-          name:'public-repo'
-        },
-        installation: {
-          id: 1
-        }}});
+    await robot.receive(scheduleEvent);
+
     expect(github.repos.getContent).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
       repo: 'public-repo',
@@ -145,6 +150,19 @@ describe('reminders', () => {
       repo: 'public-repo',
       number: 2,
       body: ':wave: @baxterthehacker, Hey, we\'re back awake!'
+    });
+  });
+
+  it('works with malformed metadata', async () => {
+    issue.body = 'hello world';
+
+    await robot.receive(scheduleEvent);
+
+    expect(github.issues.removeLabel).toHaveBeenCalledWith({
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      number: 2,
+      name: 'reminder'
     });
   });
 });
