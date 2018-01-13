@@ -40,7 +40,7 @@ describe('reminders', () => {
     // Load the plugin
     // Mock out the GitHub API
     github = {
-      integrations: {
+      apps: {
         getInstallations: jest.fn()
       },
       paginate: jest.fn(),
