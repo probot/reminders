@@ -1,6 +1,5 @@
 process.env.TZ = 'UTC'
 
-const expect = require('expect')
 const {createRobot} = require('probot')
 const plugin = require('..')
 const chrono = require('chrono-node')
@@ -42,25 +41,25 @@ describe('reminders', () => {
     // Mock out the GitHub API
     github = {
       integrations: {
-        getInstallations: expect.createSpy()
+        getInstallations: jest.fn()
       },
-      paginate: expect.createSpy(),
+      paginate: jest.fn(),
       repos: {
         // Response for getting content from '.github/config.yml'
-        getContent: expect.createSpy().andReturn(Promise.resolve({
+        getContent: jest.fn().mockImplementation(() => Promise.resolve({
           data: {content: Buffer.from(`reminders:\n  label: reminder`).toString('base64')}
         }))
       },
       issues: {
-        createComment: expect.createSpy(),
-        edit: expect.createSpy(),
-        get: expect.createSpy().andReturn(Promise.resolve({data: {
+        createComment: jest.fn(),
+        edit: jest.fn(),
+        get: jest.fn().mockImplementation(() => Promise.resolve({data: {
           body: 'hello world'
         }})),
-        removeLabel: expect.createSpy()
+        removeLabel: jest.fn()
       },
       search: {
-        issues: expect.createSpy().andReturn(Promise.resolve({
+        issues: jest.fn().mockImplementation(() => Promise.resolve({
           data: {items: [issue]}
         })) // Q:'label:' + this.labelName
       }
@@ -74,7 +73,7 @@ describe('reminders', () => {
     commentEvent.payload.installation.id = 1
   })
 
-  it('sets a reminder with slash commands', async () => {
+  test('sets a reminder with slash commands', async () => {
     commentEvent.payload.comment.body = 'I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017'
 
     await robot.receive(commentEvent)
@@ -112,7 +111,7 @@ describe('reminders', () => {
     })
   })
 
-  it('sets a reminder with slash commands', async () => {
+  test('sets a reminder with slash commands', async () => {
     commentEvent.payload.comment.body = '/remind nope'
 
     try {
@@ -130,7 +129,7 @@ describe('reminders', () => {
     })
   })
 
-  it('test visitor activation', async () => {
+  test('test visitor activation', async () => {
     await robot.receive(scheduleEvent)
 
     expect(github.repos.getContent).toHaveBeenCalledWith({
@@ -153,7 +152,7 @@ describe('reminders', () => {
     })
   })
 
-  it('works with malformed metadata', async () => {
+  test('works with malformed metadata', async () => {
     issue.body = 'hello world'
 
     await robot.receive(scheduleEvent)
