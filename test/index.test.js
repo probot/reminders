@@ -107,7 +107,7 @@ describe('reminders', () => {
       number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      body: '@baxterthehacker set a reminder for **07/01/2017**'
+      body: '@baxterthehacker set a reminder for **Jul 1st 2017**'
     })
   })
 
