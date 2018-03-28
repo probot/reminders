@@ -13,7 +13,7 @@
     "chrono-node": "^1.3.4",
     "moment": "^2.18.1",
     "parse-reminder": "^1.2.0",
-    "probot": "^3.0.3",
+    "probot": "^6.0.0",
     "probot-commands": "^1.0.0",
     "probot-metadata": "^1.0.0",
     "probot-scheduler": "^1.0.3"
@@ -21,7 +21,7 @@
   "devDependencies": {
     "eslint-plugin-import": "^2.8.0",
     "jest": "^22.0.6",
-    "localtunnel": "^1.8.2",
+    "smee-client": "^1.0.1",
     "standard": "^10.0.3"
   },
   "engines": {
