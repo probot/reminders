@@ -1,5 +1,7 @@
 # Probot: Reminders
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/probot/reminders.svg)](https://greenkeeper.io/)
+
 > a GitHub App built with [Probot](https://github.com/probot/probot) that adds reminders to Issues and Pull Requests.
 
 Use the `/remind` slash command to set a reminder on any comment box on GitHub and you'll get a ping about it again when the reminder is due.
