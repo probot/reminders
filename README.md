@@ -7,15 +7,9 @@ Use the `/remind` slash command to set a reminder on any comment box on GitHub a
 <img width="797" alt="screen shot 2017-09-15 at 6 48 56 pm" src="https://user-images.githubusercontent.com/13410355/30493981-99505cfe-9a46-11e7-8738-3652da872141.png">
 
 ## Usage
-1. **[Configure the GitHub App](https://github.com/apps/reminders)**
-2. Start using the `/reminders` command on the repository.
-3. Optionally, add a `.github/config.yml` to customize the app:
 
-```yml
-reminders:  
-  # Label applied to issues with pending reminders
-  label: reminder
-```
+1. **[Install the GitHub App](https://github.com/apps/reminders)**
+2. Start using the `/reminders` command on the repository.
 
 ## Setup
 

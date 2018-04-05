@@ -44,12 +44,6 @@ describe('reminders', () => {
         getInstallations: jest.fn()
       },
       paginate: jest.fn(),
-      repos: {
-        // Response for getting content from '.github/config.yml'
-        getContent: jest.fn().mockImplementation(() => Promise.resolve({
-          data: {content: Buffer.from(`reminders:\n  label: reminder`).toString('base64')}
-        }))
-      },
       issues: {
         createComment: jest.fn(),
         edit: jest.fn(),
@@ -132,11 +126,6 @@ describe('reminders', () => {
   test('test visitor activation', async () => {
     await robot.receive(scheduleEvent)
 
-    expect(github.repos.getContent).toHaveBeenCalledWith({
-      owner: 'baxterthehacker',
-      repo: 'public-repo',
-      path: '.github/config.yml'
-    })
     expect(github.issues.edit).toHaveBeenCalledWith({
       labels: [],
       owner: 'baxterthehacker',
