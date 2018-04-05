@@ -76,12 +76,14 @@ describe('reminders', () => {
       number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      labels: [{
-        url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
-        name: 'bug',
-        color: 'fc2929'
-      },
-        'reminder']
+      labels: [
+        {
+          url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
+          name: 'bug',
+          color: 'fc2929'
+        },
+        'reminder'
+      ]
     })
 
     const params = {
