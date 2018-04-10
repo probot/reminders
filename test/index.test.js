@@ -44,6 +44,12 @@ describe('reminders', () => {
         getInstallations: jest.fn()
       },
       paginate: jest.fn(),
+      repos: {
+        // Response for getting content from '.github/config.yml'
+        getContent: jest.fn().mockImplementation(() => Promise.resolve({
+          data: {content: Buffer.from(`reminders:\n  label: reminder`).toString('base64')}
+        }))
+      },
       issues: {
         createComment: jest.fn(),
         edit: jest.fn(),
@@ -55,7 +61,16 @@ describe('reminders', () => {
       search: {
         issues: jest.fn().mockImplementation(() => Promise.resolve({
           data: {items: [issue]}
-        })) // Q:'label:' + this.labelName
+        })), // Q:'label:' + this.labelName
+        commits: jest.fn().mockImplementation(() => Promise.resolve({
+          data: {items: [{
+            commit: {
+              author: {
+                date: '20212'
+              }
+            }
+          }]}
+        }))
       }
     }
 
@@ -76,14 +91,12 @@ describe('reminders', () => {
       number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      labels: [
-        {
-          url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
-          name: 'bug',
-          color: 'fc2929'
-        },
-        'reminder'
-      ]
+      labels: [{
+        url: 'https://api.github.com/repos/baxterthehacker/public-repo/labels/bug',
+        name: 'bug',
+        color: 'fc2929'
+      },
+      'reminder']
     })
 
     const params = {
@@ -91,6 +104,7 @@ describe('reminders', () => {
       what: 'check the spinaker',
       when: chrono.parseDate('July 1, 2017 9:00am')
     }
+    params.when = (params.when + '+5:30').slice(0, 39)
 
     expect(github.issues.edit).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
@@ -128,6 +142,11 @@ describe('reminders', () => {
   test('test visitor activation', async () => {
     await robot.receive(scheduleEvent)
 
+    expect(github.repos.getContent).toHaveBeenCalledWith({
+      owner: 'baxterthehacker',
+      repo: 'public-repo',
+      path: '.github/config.yml'
+    })
     expect(github.issues.edit).toHaveBeenCalledWith({
       labels: [],
       owner: 'baxterthehacker',
