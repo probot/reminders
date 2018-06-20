@@ -8,6 +8,7 @@ describe('reminders', () => {
   let robot
   let github
   let commentEvent
+  let issuesEvent
   let issue
 
   const scheduleEvent = {
@@ -27,6 +28,7 @@ describe('reminders', () => {
 
     // Deep clone so later modifications don't mutate this.
     commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')))
+    issuesEvent = JSON.parse(JSON.stringify(require('./fixtures/issues.opened')))
     issue = {
       body: 'hello world\n\n<!-- probot = {"1":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->',
       number: 2,
@@ -107,7 +109,20 @@ describe('reminders', () => {
     })
   })
 
-  test('sets a reminder with slash commands', async () => {
+  test('sets a reminder when issue is opened', async () => {
+    issuesEvent.payload.issue.body = '/remind me to check the spinaker on July 1, 2017'
+
+    await robot.receive(issuesEvent)
+
+    expect(github.issues.createComment).toHaveBeenCalledWith({
+      number: 97,
+      owner: 'robotland',
+      repo: 'test',
+      body: '@jbjonesjr set a reminder for **Jul 1st 2017**'
+    })
+  })
+
+  test('shows an error when reminder parsing fails', async () => {
     commentEvent.payload.comment.body = '/remind nope'
 
     try {
