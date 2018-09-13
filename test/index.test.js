@@ -1,6 +1,6 @@
 process.env.TZ = 'UTC'
 
-const {createRobot} = require('probot')
+const { createRobot } = require('probot')
 const plugin = require('..')
 const chrono = require('chrono-node')
 
@@ -16,10 +16,10 @@ describe('reminders', () => {
     payload: {
       action: 'repository',
       repository: {
-        owner: {login: 'baxterthehacker'},
+        owner: { login: 'baxterthehacker' },
         name: 'public-repo'
       },
-      installation: {id: 1}
+      installation: { id: 1 }
     }
   }
 
@@ -49,14 +49,16 @@ describe('reminders', () => {
       issues: {
         createComment: jest.fn(),
         edit: jest.fn(),
-        get: jest.fn().mockImplementation(() => Promise.resolve({data: {
-          body: 'hello world'
-        }})),
+        get: jest.fn().mockImplementation(() => Promise.resolve({
+          data: {
+            body: 'hello world'
+          }
+        })),
         removeLabel: jest.fn()
       },
       search: {
         issues: jest.fn().mockImplementation(() => Promise.resolve({
-          data: {items: [issue]}
+          data: { items: [issue] }
         })) // Q:'label:' + this.labelName
       }
     }
