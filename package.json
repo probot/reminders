@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "eslint-plugin-import": "^2.8.0",
-    "jest": "^22.0.6",
+    "jest": "^24.5.0",
     "smee-client": "^1.0.1",
     "standard": "^11.0.1"
   },
