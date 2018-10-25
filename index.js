@@ -5,8 +5,8 @@ const createScheduler = require('probot-scheduler')
 const commands = require('probot-commands')
 const reminders = require('./lib/reminders')
 
-module.exports = robot => {
-  createScheduler(robot, {interval: 15 * 60 * 1000})
-  commands(robot, 'remind', reminders.set)
-  robot.on('schedule.repository', reminders.check)
+module.exports = app => {
+  createScheduler(app, {interval: 15 * 60 * 1000})
+  commands(app, 'remind', reminders.set)
+  app.on('schedule.repository', reminders.check)
 }

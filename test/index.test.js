@@ -1,18 +1,18 @@
 process.env.TZ = 'UTC'
 
-const {createRobot} = require('probot')
+const {Probot} = require('probot')
 const plugin = require('..')
 const chrono = require('chrono-node')
 
 describe('reminders', () => {
-  let robot
+  let probot
   let github
   let commentEvent
   let issuesEvent
   let issue
 
   const scheduleEvent = {
-    event: 'schedule',
+    name: 'schedule',
     payload: {
       action: 'repository',
       repository: {
@@ -24,7 +24,7 @@ describe('reminders', () => {
   }
 
   beforeEach(() => {
-    robot = createRobot()
+    probot = new Probot({})
 
     // Deep clone so later modifications don't mutate this.
     commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')))
@@ -61,10 +61,8 @@ describe('reminders', () => {
       }
     }
 
-    // Mock out GitHub client
-    robot.auth = () => Promise.resolve(github)
-
-    plugin(robot)
+    const app = probot.load(plugin)
+    app.auth = () => Promise.resolve(github)
 
     commentEvent.payload.installation.id = 1
   })
@@ -72,7 +70,7 @@ describe('reminders', () => {
   test('sets a reminder with slash commands', async () => {
     commentEvent.payload.comment.body = 'I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017'
 
-    await robot.receive(commentEvent)
+    await probot.receive(commentEvent)
 
     expect(github.issues.edit).toHaveBeenCalledWith({
       number: 2,
@@ -112,7 +110,7 @@ describe('reminders', () => {
   test('sets a reminder when issue is opened', async () => {
     issuesEvent.payload.issue.body = '/remind me to check the spinaker on July 1, 2017'
 
-    await robot.receive(issuesEvent)
+    await probot.receive(issuesEvent)
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
       number: 97,
@@ -126,7 +124,7 @@ describe('reminders', () => {
     commentEvent.payload.comment.body = '/remind nope'
 
     try {
-      await robot.receive(commentEvent)
+      await probot.receive(commentEvent)
       throw new Error('Expected error but none was raised')
     } catch (err) {
       expect(err.message).toEqual('Unable to parse reminder: remind nope')
@@ -141,7 +139,7 @@ describe('reminders', () => {
   })
 
   test('test visitor activation', async () => {
-    await robot.receive(scheduleEvent)
+    await probot.receive(scheduleEvent)
 
     expect(github.issues.edit).toHaveBeenCalledWith({
       labels: [],
@@ -161,7 +159,7 @@ describe('reminders', () => {
   test('works with malformed metadata', async () => {
     issue.body = 'hello world'
 
-    await robot.receive(scheduleEvent)
+    await probot.receive(scheduleEvent)
 
     expect(github.issues.removeLabel).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
