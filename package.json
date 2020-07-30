@@ -13,7 +13,7 @@
     "chrono-node": "^1.3.4",
     "moment": "^2.18.1",
     "parse-reminder": "^1.2.0",
-    "probot": "^6.0.0",
+    "probot": "^7.1.1",
     "probot-commands": "^1.1.0",
     "probot-metadata": "^1.0.0",
     "probot-scheduler": "^1.1.0"
