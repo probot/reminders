@@ -9,6 +9,10 @@
     "start": "probot run ./index.js",
     "test": "jest && standard"
   },
+  "jest": {
+    "verbose": true,
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "chrono-node": "^1.3.4",
     "moment": "^2.18.1",
