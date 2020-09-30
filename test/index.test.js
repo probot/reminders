@@ -1,6 +1,6 @@
 process.env.TZ = 'UTC'
 
-const {createRobot} = require('probot')
+const {Probot} = require('probot')
 const plugin = require('..')
 const chrono = require('chrono-node')
 
@@ -24,7 +24,7 @@ describe('reminders', () => {
   }
 
   beforeEach(() => {
-    robot = createRobot()
+    robot = new Probot()
 
     // Deep clone so later modifications don't mutate this.
     commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')))
