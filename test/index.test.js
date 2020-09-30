@@ -24,7 +24,7 @@ describe('reminders', () => {
   }
 
   beforeEach(() => {
-    robot = new Probot()
+    robot = new Probot({})
 
     // Deep clone so later modifications don't mutate this.
     commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')))
