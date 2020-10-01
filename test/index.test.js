@@ -1,6 +1,6 @@
 process.env.TZ = 'UTC'
 
-const {Probot} = require('probot')
+const {Application} = require('probot')
 const plugin = require('..')
 const chrono = require('chrono-node')
 
@@ -12,7 +12,7 @@ describe('reminders', () => {
   let issue
 
   const scheduleEvent = {
-    event: 'schedule',
+    name: 'schedule',
     payload: {
       action: 'repository',
       repository: {
@@ -24,7 +24,7 @@ describe('reminders', () => {
   }
 
   beforeEach(() => {
-    robot = new Probot({})
+    robot = new Application({'secret':'foo', 'privateKey': fakepem})
 
     // Deep clone so later modifications don't mutate this.
     commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')))
@@ -48,14 +48,14 @@ describe('reminders', () => {
       paginate: jest.fn(),
       issues: {
         createComment: jest.fn(),
-        edit: jest.fn(),
+        update: jest.fn(),
         get: jest.fn().mockImplementation(() => Promise.resolve({data: {
           body: 'hello world'
         }})),
         removeLabel: jest.fn()
       },
       search: {
-        issues: jest.fn().mockImplementation(() => Promise.resolve({
+        issuesAndPullRequests: jest.fn().mockImplementation(() => Promise.resolve({
           data: {items: [issue]}
         })) // Q:'label:' + this.labelName
       }
