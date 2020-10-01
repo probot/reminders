@@ -1,9 +1,9 @@
+process.env.IGNORED_ACCOUNTS = ["jest"]
 process.env.TZ = 'UTC'
 
-const {Application} = require('probot')
+const { Application } = require('probot')
 const plugin = require('..')
 const chrono = require('chrono-node')
-
 describe('reminders', () => {
   let robot
   let github
@@ -16,15 +16,17 @@ describe('reminders', () => {
     payload: {
       action: 'repository',
       repository: {
-        owner: {login: 'baxterthehacker'},
+        owner: { login: 'baxterthehacker' },
         name: 'public-repo'
       },
-      installation: {id: 1}
+      installation: { id: 1 }
     }
   }
 
   beforeEach(() => {
-  let fakepem = `-----BEGIN RSA PRIVATE KEY-----
+    // FYI, I had to generate a specific PCKS#1 RSA Private Key to make this work. This one is 4096, not sure if that matters.
+    // See note here: https://docs.github.com/en/free-pro-team@latest/developers/apps/authenticating-with-github-apps#generating-a-private-key
+    let fakepem = `-----BEGIN RSA PRIVATE KEY-----
 MIIJJwIBAAKCAgEAo5RSDQ3fA0fZudqOY+5K6+XcMmP8GjesfNCvyAvoMFRiBowM
 NkXuDpWPnFgbkvck9djp+1KSAM5e5V0q06JCI/5muGPgNFUyu5KlPheHXc3IPB/P
 A2Qaal69YnYGioZa1RaY+eO/BctTAF+MutUj9QcLwr93beFK8+pUbzqPP8QsyHzm
@@ -75,7 +77,7 @@ EL4vtnQNEF/iV335JnIPB1dEiBf53QqTZkHTX2hJUuixsu2r762OgH1V7RWOwJa7
 YYf77AgMR5neDgyndWZSV58qF/KP+aAS06C3CAM9R1rzd7BGgwMgtDjaUG6xFnpO
 fAtlrHqdPk39PJQLaPe95X97mlAZdioRsJQ4y/g7KiAzMqlHVBk+QFEasA==
 -----END RSA PRIVATE KEY-----`;
-    robot = new Application({'secret':'foo', 'privateKey': fakepem})
+    robot = new Application({ 'secret': 'foo', 'privateKey': fakepem })
 
     // Deep clone so later modifications don't mutate this.
     commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')))
@@ -94,20 +96,33 @@ fAtlrHqdPk39PJQLaPe95X97mlAZdioRsJQ4y/g7KiAzMqlHVBk+QFEasA==
     // Mock out the GitHub API
     github = {
       apps: {
-        getInstallations: jest.fn()
+        getInstallations: jest.fn(),
+        listInstallations: {
+          endpoint: {
+            merge: jest.fn(() => [{
+              "id": 55,
+              "desc": "installation from listinstallsendpoing",
+              "account": {
+                "login": "jest"
+              }
+            }])
+          }
+        }
       },
-      paginate: jest.fn(),
+      paginate: jest.fn((x) => x),
       issues: {
         createComment: jest.fn(),
         update: jest.fn(),
-        get: jest.fn().mockImplementation(() => Promise.resolve({data: {
-          body: 'hello world'
-        }})),
+        get: jest.fn().mockImplementation(() => Promise.resolve({
+          data: {
+            body: 'hello world'
+          }
+        })),
         removeLabel: jest.fn()
       },
       search: {
         issuesAndPullRequests: jest.fn().mockImplementation(() => Promise.resolve({
-          data: {items: [issue]}
+          data: { items: [issue] }
         })) // Q:'label:' + this.labelName
       }
     }
