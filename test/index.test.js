@@ -74,7 +74,7 @@ describe('reminders', () => {
 
     await robot.receive(commentEvent)
 
-    expect(github.issues.edit).toHaveBeenCalledWith({
+    expect(github.issues.update).toHaveBeenCalledWith({
       number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
@@ -94,7 +94,7 @@ describe('reminders', () => {
       when: chrono.parseDate('July 1, 2017 9:00am')
     }
 
-    expect(github.issues.edit).toHaveBeenCalledWith({
+    expect(github.issues.update).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
       repo: 'public-repo',
       number: 2,
@@ -143,7 +143,7 @@ describe('reminders', () => {
   test('test visitor activation', async () => {
     await robot.receive(scheduleEvent)
 
-    expect(github.issues.edit).toHaveBeenCalledWith({
+    expect(github.issues.update).toHaveBeenCalledWith({
       labels: [],
       owner: 'baxterthehacker',
       repo: 'public-repo',
