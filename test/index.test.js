@@ -24,7 +24,7 @@ describe('reminders', () => {
   }
 
   beforeEach(() => {
-    let fakepen = "";
+    let fakepem = "";
     robot = new Application({'secret':'foo', 'privateKey': fakepem})
 
     // Deep clone so later modifications don't mutate this.
