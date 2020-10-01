@@ -8,7 +8,7 @@
   "scripts": {
     "start": "probot run ./index.js",
     "test": "jest && standard",
-    "test:debug": "node --inspect node_modules/.bin/jest"
+    "test:debug": "node --inspect=9229 node_modules/.bin/jest --runInBand"
   },
   "jest": {
     "verbose": true,
