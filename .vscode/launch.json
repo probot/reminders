@@ -5,7 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "test:debug",
+            "name": "npm-test",
+            "type":"node",
+            "noDebug": true,
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "test"
+            ],
+            "runtimeExecutable": "npm",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "npm-test:debug",
             "type":"node",
             "request": "launch",
             "runtimeArgs": [
