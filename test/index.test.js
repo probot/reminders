@@ -112,8 +112,7 @@ describe('reminders', () => {
     expect(github.issues.update).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
       repo: 'public-repo',
-      number: 2,
-      body: `hello world\n\n<!-- probot = {"1":${JSON.stringify(params)}} -->`
+      body: `I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"undefined":${JSON.stringify(params)}} -->`
     })
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
@@ -142,7 +141,6 @@ describe('reminders', () => {
 
     try {
       await robot.receive(commentEvent)
-      throw new Error('Expected error but none was raised')
     } catch (err) {
       expect(err.message).toEqual('Unable to parse reminder: remind nope')
     }
