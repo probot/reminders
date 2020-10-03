@@ -90,7 +90,7 @@ describe('reminders', () => {
     await robot.receive(commentEvent)
 
     expect(github.issues.update).toHaveBeenCalledWith({
-      number: 2,
+      issue_number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
       labels: [
@@ -112,11 +112,12 @@ describe('reminders', () => {
     expect(github.issues.update).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
       repo: 'public-repo',
+      issue_number: 2,
       body: `I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"undefined":${JSON.stringify(params)}} -->`
     })
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
-      number: 2,
+      issue_number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
       body: '@baxterthehacker set a reminder for **Jul 1st 2017**'
@@ -129,7 +130,7 @@ describe('reminders', () => {
     await robot.receive(issuesEvent)
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
-      number: 97,
+      issue_number: 97,
       owner: 'robotland',
       repo: 'test',
       body: '@jbjonesjr set a reminder for **Jul 1st 2017**'
@@ -146,7 +147,7 @@ describe('reminders', () => {
     }
 
     expect(github.issues.createComment).toHaveBeenCalledWith({
-      number: 2,
+      issue_number: 2,
       owner: 'baxterthehacker',
       repo: 'public-repo',
       body: '@baxterthehacker we had trouble parsing your reminder. Try:\n\n`/remind me [what] [when]`'
