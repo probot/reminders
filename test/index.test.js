@@ -19,7 +19,7 @@ describe('reminders', () => {
         owner: { login: 'baxterthehacker' },
         name: 'public-repo'
       },
-      installation: { id: 1 }
+      installation: { /*id: 1*/ }
     }
   }
 
@@ -81,7 +81,7 @@ describe('reminders', () => {
 
     plugin(robot)
 
-    commentEvent.payload.installation.id = 1
+ //   commentEvent.payload.installation.id = 1
   })
 
   test('sets a reminder with slash commands', async () => {
