@@ -73,7 +73,7 @@ describe('reminders', () => {
       },
       defaults: jest.fn(),
       Octokit: jest.fn()
-      }
+    }
 
     robot = new Application({ 'secret': 'foo', 'Octokit':github, 'octokit':github })
     // Mock out GitHub client
@@ -109,6 +109,7 @@ describe('reminders', () => {
       when: chrono.parseDate('July 1, 2017 9:00am')
     }
 
+    //TODO: This uses a local hacked version of probot-metadata
     expect(github.issues.update).toHaveBeenCalledWith({
       owner: 'baxterthehacker',
       repo: 'public-repo',
