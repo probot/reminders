@@ -20,12 +20,13 @@
     "parse-reminder": "^1.2.0",
     "probot": "^10.9.0",
     "probot-commands": "^1.0.1",
-    "probot-metadata": "^1.0.1",
+    "probot-metadata": "^2.0.0",
     "probot-scheduler": "2.0.0-beta.1"
   },
   "devDependencies": {
     "eslint-plugin-import": "^2.8.0",
-    "jest": "^22.0.6",
+    "jest": "^23.6.0",
+    "nock": "^13.0.4",
     "smee-client": "^1.0.1",
     "standard": "^11.0.1"
   },
