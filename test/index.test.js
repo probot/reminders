@@ -1,4 +1,4 @@
-process.env.IGNORED_ACCOUNTS = ["jest"]
+process.env.IGNORED_ACCOUNTS = ['jest']
 process.env.TZ = 'UTC'
 
 const { Application, Context, ProbotOctokit } = require('probot')
@@ -16,10 +16,9 @@ describe('reminders', () => {
   let issuesEvent
   let scheduleEvent
   let issue
-  let mock;
+  let mock
 
   beforeEach(() => {
-
     // Deep clone so later modifications don't mutate this.
     commentEvent = JSON.parse(JSON.stringify(require('./fixtures/issue_comment.created')))
     issuesEvent = JSON.parse(JSON.stringify(require('./fixtures/issues.opened')))
@@ -46,7 +45,7 @@ describe('reminders', () => {
 
     robot = new Application({
       'secret': 'foo',
-      githubToken: "test",
+      githubToken: 'test',
       // Disable throttling & retrying requests for easier testing
       Octokit: ProbotOctokit.defaults({
         retry: { enabled: false },
@@ -55,15 +54,15 @@ describe('reminders', () => {
       installation: { id: 13055 }
     })
 
-    /*scheduleContext = new Context(
+    /* scheduleContext = new Context(
       scheduleEvent,
       new ProbotOctokit({
         throttle: { enabled: false },
         retry: { enabled: false }
       })
-    )*/
+    ) */
 
-    //This mock is required because the scheduler plugin uses this method
+    // This mock is required because the scheduler plugin uses this method
     mock = nock('https://api.github.com')
       .get('/app/installations?per_page=100')
       .reply(200, [])
@@ -73,9 +72,8 @@ describe('reminders', () => {
     //   commentEvent.payload.installation.id = 1
   })
 
-  describe("setting a reminder", () => {
+  describe('setting a reminder', () => {
     test('with slash commands', async () => {
-
       commentEvent.payload.comment.body = 'I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017'
       mock.patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
         expect(requestBody.labels).toEqual(
@@ -113,10 +111,8 @@ describe('reminders', () => {
       await robot.receive(commentEvent)
 
       expect(mock.activeMocks()).toStrictEqual([])
-
     })
     test('when issue is opened', async () => {
-
       issuesEvent.payload.issue.body = '/remind me to check the spinaker on July 1, 2017'
 
       mock.patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
@@ -152,7 +148,7 @@ describe('reminders', () => {
     })
   })
 
-  describe("dealing with bad data", () => {
+  describe('dealing with bad data', () => {
     test('shows an error when reminder parsing fails', async () => {
       commentEvent.payload.comment.body = '/remind nope'
 
@@ -191,7 +187,7 @@ describe('reminders', () => {
       }
     })
   })
-  describe("mocking scheduler trigger", () => {
+  describe('mocking scheduler trigger', () => {
     test('malformed metadata', async () => {
       issue.body = 'hello world'
 
@@ -202,13 +198,10 @@ describe('reminders', () => {
 
       await robot.receive(scheduleEvent)
       expect(mock.activeMocks()).toStrictEqual([])
-
     })
 
-
     test('test visitor activation', async () => {
-
-      issue.body = 'hello world\n\n<!-- probot = {"13055":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->';
+      issue.body = 'hello world\n\n<!-- probot = {"13055":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->'
 
       mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Abaxterthehacker%2Fpublic-repo')
         .reply(200, { items: [issue] })
