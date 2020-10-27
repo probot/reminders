@@ -1,7 +1,7 @@
 process.env.IGNORED_ACCOUNTS = ['jest']
 process.env.TZ = 'UTC'
 
-const { Application, Context, ProbotOctokit } = require('probot')
+const { Application, ProbotOctokit } = require('probot')
 
 const plugin = require('..')
 const chrono = require('chrono-node')
@@ -11,7 +11,6 @@ nock.disableNetConnect()
 
 describe('reminders', () => {
   let robot
-  let github
   let commentEvent
   let issuesEvent
   let scheduleEvent
