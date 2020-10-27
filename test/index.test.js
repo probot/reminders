@@ -18,7 +18,6 @@ describe('reminders', () => {
   let issue
   let mock;
 
-
   beforeEach(() => {
 
     // Deep clone so later modifications don't mutate this.
