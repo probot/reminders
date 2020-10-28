@@ -1,0 +1,32 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "npm-test",
+            "type":"node",
+            "noDebug": true,
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "test"
+            ],
+            "runtimeExecutable": "npm",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "npm-test:debug",
+            "type":"node",
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "test:debug"
+            ],
+            "runtimeExecutable": "npm", 
+            "console": "integratedTerminal",
+            "port": 9229           
+        }
+    ]
+}
