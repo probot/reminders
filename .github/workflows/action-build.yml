@@ -1,4 +1,4 @@
-name: Build GitHub Action dist
+name: Build and package GitHub Action
 on:
   push
 
