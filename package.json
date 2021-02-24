@@ -8,7 +8,8 @@
   "scripts": {
     "build-action": "ncc build index.js -o dist",
     "start": "probot run ./index.js",
-    "test": "jest && standard",
+    "test": "jest",
+    "lint": "standard",
     "test:debug": "node --inspect=9229 node_modules/.bin/jest --runInBand"
   },
   "jest": {
