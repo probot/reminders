@@ -10,7 +10,6 @@ jobs:
       - uses: actions/setup-node@v1
 #      - run: npm ci
       - run: npm install
-      - run: npm run-script build-action
       - uses: tool3/ncc@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
