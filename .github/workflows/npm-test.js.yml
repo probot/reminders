@@ -7,7 +7,7 @@ on:
   [ push, pull_request ]
 
 jobs:
-  test:
+  "lint and test":
 
     runs-on: ubuntu-latest
 
