@@ -12,6 +12,7 @@ jobs:
         id: myref
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
+      - run: mv index-action.js index.js
       - run: npm install
       - run: npm run-script build-action
       - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version
@@ -19,10 +20,6 @@ jobs:
           # The arguments for the `git add` command (see the paragraph below for more info)
           # Default: '.'
           add: 'dist'
-
-          # The local path to the directory where your repository is located. You should use actions/checkout first to set it up
-          # Default: '.'
-          #cwd: './path/to/the/repo'
 
           # The message for the commit
           # Default: 'Commit from GitHub Actions (name of the workflow)'
