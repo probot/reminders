@@ -3,13 +3,13 @@ on:
   push
 
 jobs:
-  issuesOpened:
+  build-action-dist:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
 #      - run: npm ci
-      - run: npm run build-action
+      - run: npm run-script build-action
       - uses: ./
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
