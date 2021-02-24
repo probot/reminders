@@ -9,6 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
 #      - run: npm ci
+      - run: npm install
       - run: npm run-script build-action
       - uses: ./
         env:
