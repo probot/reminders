@@ -1,8 +1,6 @@
 name: Build GitHub Action dist
 on:
-  issues:
-    types:
-      - opened
+  push
 
 jobs:
   issuesOpened:
