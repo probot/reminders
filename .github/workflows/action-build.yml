@@ -6,10 +6,14 @@ jobs:
   build-action-dist:
     runs-on: ubuntu-latest
     steps:
+      - name: Get the current branch name
+        shell: bash
+        run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+        id: myref
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
       - uses: tool3/ncc@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           src: 'index.js'
-          branch: ${{ github.ref }}
+          branch: ${{ steps.myref.outputs.branch }}
