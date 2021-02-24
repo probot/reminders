@@ -6,6 +6,7 @@
   "license": "ISC",
   "repository": "https://github.com/probot/probot-reminders.git",
   "scripts": {
+    "build-action": "ncc build index.js -o dist",
     "start": "probot run ./index.js",
     "test": "jest && standard",
     "test:debug": "node --inspect=9229 node_modules/.bin/jest --runInBand"
