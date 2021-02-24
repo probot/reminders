@@ -10233,7 +10233,7 @@ function newObject() {
 /***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
 
 const { run } = __webpack_require__(295)
-const app = __webpack_require__(964)
+const app = __webpack_require__(872)
 
 run(app)
 
@@ -101494,7 +101494,25 @@ module.exports = {
 
 
 /***/ }),
-/* 872 */,
+/* 872 */
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+// Use UTC for for all Date parsing
+process.env.TZ = 'UTC'
+
+const commands = __webpack_require__(887)
+const reminders = __webpack_require__(188)
+
+module.exports = robot => {
+  // 'issue_comment.created', 'issues.opened', 'pull_request.opened'
+  // new Command(name, callback)
+  commands(robot, 'remind', reminders.set)
+  // call reminder checks on cron run
+  robot.on('schedule', reminders.check)
+}
+
+
+/***/ }),
 /* 873 */
 /***/ (function(module) {
 
@@ -107580,131 +107598,7 @@ function tryDecode(str, decode) {
 
 /***/ }),
 /* 927 */,
-/* 928 */
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-const Bottleneck = __webpack_require__(76)
-
-const limiter = new Bottleneck({ maxConcurrent: 1, minTime: 0 })
-const ignoredAccounts = (process.env.IGNORED_ACCOUNTS || '')
-  .toLowerCase()
-  .split(',')
-
-const defaults = {
-  delay: !process.env.DISABLE_DELAY, // Should the first run be put on a random delay?
-  interval: 60 * 60 * 1000 // 1 hour
-}
-
-module.exports = (app, options) => {
-  options = Object.assign({}, defaults, options || {})
-  const intervals = {}
-
-  // https://developer.github.com/v3/activity/events/types/#installationrepositoriesevent
-  app.on('installation.created', async event => {
-    const installation = event.payload.installation
-
-    eachRepository(installation, repository => {
-      schedule(installation, repository)
-    })
-  })
-
-  // https://developer.github.com/v3/activity/events/types/#installationrepositoriesevent
-  app.on('installation_repositories.added', async event => {
-    return setupInstallation(event.payload.installation)
-  })
-
-  setup()
-
-  function setup () {
-    return eachInstallation(setupInstallation)
-  }
-
-  function setupInstallation (installation) {
-    if (ignoredAccounts.includes(installation.account.login.toLowerCase())) {
-      app.log.info({ installation }, 'Installation is ignored')
-      return
-    }
-
-    limiter.schedule(eachRepository, installation, repository => {
-      schedule(installation, repository)
-    })
-  }
-
-  function schedule (installation, repository) {
-    if (intervals[repository.id]) {
-      return
-    }
-
-    // Wait a random delay to more evenly distribute requests
-    const delay = options.delay ? options.interval * Math.random() : 0
-
-    app.log.info(
-      { repository, delay, interval: options.interval },
-      `Scheduling interval`
-    )
-
-    intervals[repository.id] = setTimeout(() => {
-      const event = {
-        name: 'schedule',
-        payload: { action: 'repository', installation, repository }
-      }
-
-      // Trigger events on this repository on an interval
-      intervals[repository.id] = setInterval(
-        () => app.receive(event),
-        options.interval
-      )
-
-      // Trigger the first event now
-      app.receive(event)
-    }, delay)
-  }
-
-  async function eachInstallation (callback) {
-    app.log.trace('Fetching installations')
-    const github = await app.auth()
-
-    const installations = await github.paginate(
-      github.apps.listInstallations.endpoint.merge({ per_page: 100 })
-    )
-
-    const filteredInstallations = options.filter
-      ? installations.filter(inst => options.filter(inst))
-      : installations
-    return filteredInstallations.forEach(callback)
-  }
-
-  async function eachRepository (installation, callback) {
-    app.log.trace({ installation }, 'Fetching repositories for installation')
-    const github = await app.auth(installation.id)
-
-    const repositories = await github.paginate(
-      github.apps.listRepos.endpoint.merge({ per_page: 100 }),
-      response => {
-        return response.data.repositories
-      }
-    )
-
-    const filteredRepositories = options.filter
-      ? repositories.filter(repo => options.filter(installation, repo))
-      : repositories
-
-    return filteredRepositories.forEach(async repository =>
-      callback(repository, github)
-    )
-  }
-
-  function stop (repository) {
-    app.log.info({ repository }, `Canceling interval`)
-
-    clearInterval(intervals[repository.id])
-  }
-
-  return { stop }
-}
-
-
-/***/ }),
+/* 928 */,
 /* 929 */
 /***/ (function(module) {
 
@@ -111517,27 +111411,7 @@ module.exports = exports.default;
 module.exports.default = exports.default;
 
 /***/ }),
-/* 964 */
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-// Use UTC for for all Date parsing
-process.env.TZ = 'UTC'
-
-const createScheduler = __webpack_require__(928)
-const commands = __webpack_require__(887)
-const reminders = __webpack_require__(188)
-
-module.exports = robot => {
-  createScheduler(robot, {interval: 15 * 60 * 1000})
-  // 'issue_comment.created', 'issues.opened', 'pull_request.opened'
-  // new Command(name, callback)
-  commands(robot, 'remind', reminders.set)
-  // call reminder checks on cron run
-  robot.on('schedule.repository', reminders.check)
-}
-
-
-/***/ }),
+/* 964 */,
 /* 965 */,
 /* 966 */
 /***/ (function(module, __unusedexports, __webpack_require__) {
