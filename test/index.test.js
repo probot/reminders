@@ -3,7 +3,7 @@ process.env.TZ = 'UTC'
 
 const { Application, ProbotOctokit } = require('probot')
 
-const plugin = require('..')
+const plugin = require('../app')
 const chrono = require('chrono-node')
 const nock = require('nock')
 
