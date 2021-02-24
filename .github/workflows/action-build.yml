@@ -11,6 +11,7 @@ jobs:
 #      - run: npm ci
       - run: npm install
       - run: npm run-script build-action
-      - uses: ./
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: tool3/ncc@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        src: 'index.js'

@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@probot/adapter-github-actions": "^3.0.1",
-    "@zeit/ncc": "^0.22.3",
     "chrono-node": "^1.3.4",
     "moment": "^2.18.1",
     "parse-reminder": "^1.2.0",
