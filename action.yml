@@ -2,4 +2,4 @@ name: 'Issue Reminders'
 description: 'Let a robot remind you about the important issue'
 runs:
   using: 'node12'
-  main: "index-action.js"
+  main: "dist/index.js"
