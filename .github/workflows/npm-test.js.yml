@@ -19,5 +19,5 @@ jobs:
         node-version: 12.x
     - run: npm install
     - name: 'Standard Lint'
-      run: npm lint
+      run: npm run-script lint
     - run: npm test
