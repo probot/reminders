@@ -1,7 +1,6 @@
 // Use UTC for for all Date parsing
 process.env.TZ = 'UTC'
 
-const { run } = require('@probot/adapter-github-actions')
 const createScheduler = require('probot-scheduler')
 const commands = require('probot-commands')
 const reminders = require('./lib/reminders')
