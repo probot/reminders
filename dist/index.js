@@ -17732,14 +17732,13 @@ module.exports = {
   },
 
   async check(context) {
-    let owner, repo;
-
     if (!context.payload.repository) {
-       owner = process.env.GITHUB_REPOSITORY.split("/")[0];
-       repo = process.env.GITHUB_REPOSITORY.split("/")[1];
+      const { owner, repo } = Object.assign({
+        owner: process.env.GITHUB_REPOSITORY.split("/")[0],
+        repo: process.env.GITHUB_REPOSITORY.split("/")[1]
+    }, {});
     } else {
-       owner = context.repo().owner
-       repo = context.repo().repo
+      const { owner, repo } = context.repo()
     }
 
     const q = `label:"${LABEL}" repo:${owner}/${repo}`
