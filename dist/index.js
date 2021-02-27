@@ -17731,19 +17731,15 @@ module.exports = {
     }
   },
 
-  async check(context) {
-    if (!context.payload.repository) {
-      const { owner, repo } = Object.assign({
+  async check(context, octokit) {
+    const { owner, repo } = Object.assign({
         owner: process.env.GITHUB_REPOSITORY.split("/")[0],
         repo: process.env.GITHUB_REPOSITORY.split("/")[1]
     }, {});
-    } else {
-      const { owner, repo } = context.repo()
-    }
-
+    
     const q = `label:"${LABEL}" repo:${owner}/${repo}`
 
-    const resp = await context.github.search.issuesAndPullRequests({ q })
+    const resp = await octokit.search.issuesAndPullRequests({ q })
 
     await Promise.all(resp.data.items.map(async issue => {
       // Issue objects from the API don't include owner/repo params, so
@@ -56352,7 +56348,13 @@ exports.isInstanceOf = isInstanceOf;
 module.exports = require("events");
 
 /***/ }),
-/* 615 */,
+/* 615 */
+/***/ (function(module) {
+
+module.exports = eval("require")("octokit/action");
+
+
+/***/ }),
 /* 616 */
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -101591,26 +101593,19 @@ process.env.TZ = 'UTC'
 
 const commands = __webpack_require__(887)
 const reminders = __webpack_require__(188)
+const Octokit = __webpack_require__(615)
+
 
 module.exports = robot => {
-
-  /*
-{o
-
-   const repo = this.payload.repository;
-        if (!repo) {
-            throw new Error("context.repo() is not supported for this webhook event.");
-        }
-        return Object.assign({
-            owner: repo.owner.login || repo.owner.name,
-            repo: repo.name,
-        }, object);
-        */
+ 
   // 'issue_comment.created', 'issues.opened', 'pull_request.opened'
   // new Command(name, callback)
   commands(robot, 'remind', reminders.set)
+
+  const octokit = new Octokit();
+
   // call reminder checks on cron run
-  robot.on('schedule', reminders.check)
+  robot.on('schedule', reminders.check, octokit)
 }
 
 
