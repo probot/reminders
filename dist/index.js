@@ -17759,9 +17759,9 @@ module.exports = {
       
       issue = Object.assign(
         { labels }, context.issue(repo));
-        
+
       console.log('og issue', context.issue());
-      console.log('assigned issue', context.issue());
+      console.log('assigned issue', issue);
       await octokit.issues.update(issue)
 
       let metadataset = async function(octokit, issue, key){
@@ -17793,7 +17793,7 @@ module.exports = {
         return octokit.issues.update({ owner, repo, issue_number, body })
 
       } 
-      await metadataset(octokit, context.payload.issue, reminder)
+      await metadataset(octokit, context.issue(), reminder)
 
        
       await octokit.issues.createComment(context.issue({
