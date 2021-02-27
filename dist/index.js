@@ -17762,7 +17762,7 @@ module.exports = {
 
       console.log('og issue', context.issue());
       console.log('assigned issue', issue);
-      await octokit.issues.update(issue)
+      await octokit.issues.update(context.issue({ labels }))
 
       let metadataset = async function(octokit, issue, key){
 
@@ -17845,7 +17845,7 @@ module.exports = {
         const match = body.match(regex)
   
         if (match) {
-          const data = JSON.parse(match[1])[prefix]
+          const data = JSON.parse(match[1])['foo']
           return reminder = key ? data && data[key] : data
         }
       }
