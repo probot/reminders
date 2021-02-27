@@ -17753,7 +17753,7 @@ module.exports = {
       }
       await octokit.issues.update(context.issue({ labels }))
 
-      let metadataset = async function(octokit, reminder){
+      let metadataset = async function(octokit, issue, reminder){
         let body = issue.body
         let data = {}
   
@@ -17778,7 +17778,7 @@ module.exports = {
         return github.issues.update({ owner, repo, issue_number, body })
 
       } 
-      await metadataset(octokit, reminder)
+      await metadataset(octokit, context.payload.issue, reminder)
 
        
       await octokit.issues.createComment(context.issue({
