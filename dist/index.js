@@ -17778,12 +17778,12 @@ module.exports = {
           return ''
         })
   
-        if (!data['foo']) data['foo'] = {}
+        if (!data[process.env.GITHUB_ACTION]) data[process.env.GITHUB_ACTION] = {}
   
         if (typeof key === 'object') {
-          Object.assign(data['foo'], key)
+          Object.assign(data[process.env.GITHUB_ACTION], key)
         } else {
-          data['foo'][key] = value
+          data[process.env.GITHUB_ACTION][key] = value
         }
   
         body = `${body}\n\n<!-- probot = ${JSON.stringify(data)} -->`
@@ -17845,7 +17845,7 @@ module.exports = {
         const match = body.match(regex)
   
         if (match) {
-          const data = JSON.parse(match[1])['foo']
+          const data = JSON.parse(match[1])[process.env.GITHUB_ACTION]
           return reminder = key ? data && data[key] : data
         }
       }
