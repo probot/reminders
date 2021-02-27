@@ -17740,7 +17740,7 @@ module.exports = {
     } else {
       const { owner, repo } = context.repo()
     }
-    console.log('owner?', owner);
+
     const q = `label:"${LABEL}" repo:${owner}/${repo}`
 
     const resp = await context.github.search.issuesAndPullRequests({ q })
