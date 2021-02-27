@@ -17751,7 +17751,18 @@ module.exports = {
       if (!labels.find(({ name }) => name === LABEL)) {
         labels.push(LABEL)
       }
-      await octokit.issues.update(context.issue({ labels }))
+
+      const repo = Object.assign({
+        owner: process.env.GITHUB_REPOSITORY.split("/")[0],
+        repo: process.env.GITHUB_REPOSITORY.split("/")[1]
+      }, {});
+      
+      issue = Object.assign(
+        { labels }, context.issue(repo));
+        
+      console.log('og issue', context.issue());
+      console.log('assigned issue', context.issue());
+      await octokit.issues.update(issue)
 
       let metadataset = async function(octokit, issue, key){
 
@@ -17778,6 +17789,7 @@ module.exports = {
         body = `${body}\n\n<!-- probot = ${JSON.stringify(data)} -->`
   
         const { owner, repo, issue_number } = issue
+        console.log('attempting to set metadata in the op...', { owner, repo, issue_number })
         return octokit.issues.update({ owner, repo, issue_number, body })
 
       } 
