@@ -17778,7 +17778,7 @@ module.exports = {
         body = `${body}\n\n<!-- probot = ${JSON.stringify(data)} -->`
   
         const { owner, repo, issue_number } = issue
-        return github.issues.update({ owner, repo, issue_number, body })
+        return octokit.issues.update({ owner, repo, issue_number, body })
 
       } 
       await metadataset(octokit, context.payload.issue, reminder)
@@ -17812,7 +17812,6 @@ module.exports = {
       // Issue objects from the API don't include owner/repo params, so
       // setting them here with `context.repo` so we don't have to worry
       // about it later. :/
-      console.log("in promise await");
       issue = Object.assign(
         {
           owner: process.env.GITHUB_REPOSITORY.split("/")[0],
