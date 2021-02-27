@@ -17790,7 +17790,26 @@ module.exports = {
       const { owner, repo, number } = issue
 
       const issueNumber = number
-      const reminder = await metadata(octokit, issue).get()
+      
+      get = async function(octokit, issue){
+        const regex = /\n\n<!-- probot = (.*) -->/
+
+        let body = issue.body
+  
+        if (!body) {
+          body = (await octokit.issues.get(issue)).data.body || ''
+        }
+  
+        const match = body.match(regex)
+  
+        if (match) {
+          const data = JSON.parse(match[1])[prefix]
+          return reminder = key ? data && data[key] : data
+        }
+      }
+
+      const reminder = get(octokit, issue);
+      
 
       if (!reminder) {
         // Malformed metadata, not much we can do
@@ -101661,7 +101680,6 @@ process.env.TZ = 'UTC'
 
 const commands = __webpack_require__(887)
 const reminders = __webpack_require__(188)
-const { Octokit } = __webpack_require__(95)
 
 
 module.exports = robot => {
