@@ -12,8 +12,7 @@ module.exports = robot => {
   // new Command(name, callback)
   commands(robot, 'remind', reminders.set)
 
-  const octokit = new Octokit();
 
   // call reminder checks on cron run
-  robot.on('schedule', reminders.check, octokit)
+  robot.on('schedule', reminders.check)
 }
