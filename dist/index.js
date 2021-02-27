@@ -17741,8 +17741,8 @@ module.exports = {
        owner = context.repo().owner
        repo = context.repo().repo
     }
-    console.log('owner?', owner);
-    const q = `label:"${LABEL}" repo:${owner}/${repo}
+
+    const q = `label:"${LABEL}" repo:${owner}/${repo}`
 
     const resp = await context.github.search.issuesAndPullRequests({ q })
 
