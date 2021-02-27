@@ -17733,12 +17733,9 @@ module.exports = {
 
   async check(context) {
     if (!context.payload.repository) {
-      let owner_temp = process.env.GITHUB_REPOSITORY.split("/")[0];
-      let repo_temp = process.env.GITHUB_REPOSITORY.split("/")[1];
-      console.log("temp variables",owner_temp, repo_temp);
       const { owner, repo } = Object.assign({
-        owner: owner_temp,
-        repo: repo_temp
+        owner: process.env.GITHUB_REPOSITORY.split("/")[0],
+        repo: process.env.GITHUB_REPOSITORY.split("/")[1]
     }, {});
     } else {
       const { owner, repo } = context.repo()
@@ -101596,6 +101593,19 @@ const commands = __webpack_require__(887)
 const reminders = __webpack_require__(188)
 
 module.exports = robot => {
+
+  /*
+{o
+
+   const repo = this.payload.repository;
+        if (!repo) {
+            throw new Error("context.repo() is not supported for this webhook event.");
+        }
+        return Object.assign({
+            owner: repo.owner.login || repo.owner.name,
+            repo: repo.name,
+        }, object);
+        */
   // 'issue_comment.created', 'issues.opened', 'pull_request.opened'
   // new Command(name, callback)
   commands(robot, 'remind', reminders.set)
