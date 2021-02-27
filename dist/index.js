@@ -17737,7 +17737,6 @@ module.exports = {
         owner: process.env.GITHUB_REPOSITORY.split("/")[0],
         repo: process.env.GITHUB_REPOSITORY.split("/")[1]
     }, {});
-    console.log('owner?', owner);
     } else {
       const { owner, repo } = context.repo()
     }
