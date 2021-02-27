@@ -17776,10 +17776,12 @@ module.exports = {
 
     const resp = await octokit.search.issuesAndPullRequests({ q })
 
+    console.log("octokit search?",resp);
     await Promise.all(resp.data.items.map(async issue => {
       // Issue objects from the API don't include owner/repo params, so
       // setting them here with `context.repo` so we don't have to worry
       // about it later. :/
+      console.log("in promise await");
       issue = context.repo(issue)
       const { owner, repo, number } = issue
 
