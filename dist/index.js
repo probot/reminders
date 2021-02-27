@@ -17736,7 +17736,10 @@ module.exports = {
       let owner_temp = process.env.GITHUB_REPOSITORY.split("/")[0];
       let repo_temp = process.env.GITHUB_REPOSITORY.split("/")[1];
       console.log("temp variables",owner_temp, repo_temp);
-      const { owner, repo } = { owner: owner_temp, repo: repo_temp };
+      const { owner, repo } = Object.assign({
+        owner: owner_temp,
+        repo: repo_temp
+    }, {});
     } else {
       const { owner, repo } = context.repo()
     }
