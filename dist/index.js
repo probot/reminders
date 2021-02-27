@@ -17776,7 +17776,6 @@ module.exports = {
 
     const resp = await octokit.search.issuesAndPullRequests({ q })
 
-    console.log("octokit search?", resp);
     await Promise.all(resp.data.items.map(async issue => {
       // Issue objects from the API don't include owner/repo params, so
       // setting them here with `context.repo` so we don't have to worry
@@ -17809,7 +17808,8 @@ module.exports = {
       }
 
       const reminder = get(octokit, issue);
-      
+      console.log("issue body", issue.body);
+      console.log("reminder", reminder);
 
       if (!reminder) {
         // Malformed metadata, not much we can do
@@ -17827,6 +17827,7 @@ module.exports = {
 
         await octokit.issues.update({ owner, repo, 'issue_number': issueNumber, labels, state: 'open' })
 
+        console.log('trying to respond....');
         await octokit.issues.createComment({
           owner,
           repo,
