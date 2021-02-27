@@ -17732,16 +17732,17 @@ module.exports = {
   },
 
   async check(context) {
+    let owner, repo;
+
     if (!context.payload.repository) {
-      const { owner, repo } = Object.assign({
-        owner: process.env.GITHUB_REPOSITORY.split("/")[0],
-        repo: process.env.GITHUB_REPOSITORY.split("/")[1]
-    }, {});
+       owner = process.env.GITHUB_REPOSITORY.split("/")[0];
+       repo = process.env.GITHUB_REPOSITORY.split("/")[1];
     } else {
-      const { owner, repo } = context.repo()
+       owner = context.repo().owner
+       repo = context.repo().repo
     }
     console.log('owner?', owner);
-    const q = `label:"${LABEL}" repo:${owner}/${repo}`
+    const q = `label:"${LABEL}" repo:${owner}/${repo}
 
     const resp = await context.github.search.issuesAndPullRequests({ q })
 
