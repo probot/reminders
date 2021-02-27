@@ -17736,6 +17736,9 @@ const LABEL = 'reminder'
 
 module.exports = {
   async set(context, command) {
+
+    const octokit = new Octokit();
+
     const reminder = parseReminder(command.name + ' ' + command.arguments)
 
     if (reminder) {
@@ -17748,15 +17751,41 @@ module.exports = {
       if (!labels.find(({ name }) => name === LABEL)) {
         labels.push(LABEL)
       }
-      await context.github.issues.update(context.issue({ labels }))
+      await octokit.issues.update(context.issue({ labels }))
 
-      await metadata(context).set(reminder)
+      let metadataset = async function(octokit, reminder){
+        let body = issue.body
+        let data = {}
+  
+        if (!body) body = (await octokit.issues.get(issue)).data.body || ''
+  
+        body = body.replace(regex, (_, json) => {
+          data = JSON.parse(json)
+          return ''
+        })
+  
+        if (!data['foo']) data['foo'] = {}
+  
+        if (typeof key === 'object') {
+          Object.assign(data['foo'], key)
+        } else {
+          data['foo'][key] = value
+        }
+  
+        body = `${body}\n\n<!-- probot = ${JSON.stringify(data)} -->`
+  
+        const { owner, repo, issue_number } = issue
+        return github.issues.update({ owner, repo, issue_number, body })
 
-      await context.github.issues.createComment(context.issue({
+      } 
+      await metadataset(octokit, reminder)
+
+       
+      await octokit.issues.createComment(context.issue({
         body: `@${context.payload.sender.login} set a reminder for **${moment(reminder.when).format('MMM Do YYYY')}**`
       }))
     } else {
-      await context.github.issues.createComment(context.issue({
+      await octokit.issues.createComment(context.issue({
         body: `@${context.payload.sender.login} we had trouble parsing your reminder. Try:\n\n\`/remind me [what] [when]\``
       }))
       throw new Error(`Unable to parse reminder: remind ${command.arguments}`)
@@ -17809,7 +17838,7 @@ module.exports = {
 
       const reminder = get(octokit, issue);
       console.log("issue body", issue.body);
-      console.log("reminder", reminder);
+      console.log("reminder", reminder.toString());
 
       if (!reminder) {
         // Malformed metadata, not much we can do
@@ -101685,13 +101714,16 @@ const reminders = __webpack_require__(188)
 
 module.exports = robot => {
  
-  // 'issue_comment.created', 'issues.opened', 'pull_request.opened'
-  // new Command(name, callback)
-  commands(robot, 'remind', reminders.set)
-
-
-  // call reminder checks on cron run
+//  robot.on(['issue_comment.created', 'issues.opened', 'pull_request.opened'], testCommand)
+// commands may be a reusable pattern to pass the right octokit downstream for probot and actions usage  
+commands(robot, 'remind', reminders.set)
   robot.on('schedule', reminders.check)
+}
+
+testCommand = function(context){
+  /^\/([\w]+)\b *(.*)?$/m
+  //look for remind
+  reminders.set(context);
 }
 
 
