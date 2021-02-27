@@ -3,7 +3,6 @@ process.env.TZ = 'UTC'
 
 const commands = require('probot-commands')
 const reminders = require('./lib/reminders')
-const { Octokit } = require('@octokit/action')
 
 
 module.exports = robot => {
