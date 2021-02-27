@@ -17733,8 +17733,10 @@ module.exports = {
 
   async check(context) {
     if (!context.payload.repository) {
-      const owner = process.env.GITHUB_REPOSITORY.split("/")[0];
-      const repo = process.env.GITHUB_REPOSITORY.split("/")[1];
+      let owner_temp = process.env.GITHUB_REPOSITORY.split("/")[0];
+      let repo_temp = process.env.GITHUB_REPOSITORY.split("/")[1];
+      console.log("temp variables",owner_temp, repo_temp);
+      const { owner, repo } = { owner: owner_temp, repo: repo_temp };
     } else {
       const { owner, repo } = context.repo()
     }
