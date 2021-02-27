@@ -17753,7 +17753,7 @@ module.exports = {
       }
       await octokit.issues.update(context.issue({ labels }))
 
-      let metadataset = async function(octokit, issue, reminder){
+      let metadataset = async function(octokit, issue, key){
 
         const regex = /\n\n<!-- probot = (.*) -->/
 
