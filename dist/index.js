@@ -17850,7 +17850,7 @@ module.exports = {
         }
       }
 
-      const reminder = get(octokit, issue);
+      const reminder = await get(octokit, issue);
       console.log("issue body", issue.body);
       console.log("reminder", reminder.toString());
 
