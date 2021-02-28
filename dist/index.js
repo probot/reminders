@@ -17833,7 +17833,7 @@ module.exports = {
 
       const issueNumber = number
       
-      get = async function(octokit, issue){
+      get = async function(octokit, issue, key){
         const regex = /\n\n<!-- probot = (.*) -->/
 
         let body = issue.body
@@ -17846,7 +17846,7 @@ module.exports = {
   
         if (match) {
           const data = JSON.parse(match[1])[process.env.GITHUB_ACTION]
-          return reminder = key ? data && data[key] : data
+          return key ? data && data[key] : data
         }
       }
 
