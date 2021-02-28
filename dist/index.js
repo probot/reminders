@@ -17851,7 +17851,6 @@ module.exports = {
       }
 
       const reminder = await get(octokit, issue);
-      console.log("issue body", issue.body);
       console.log("reminder", reminder.toString());
 
       if (!reminder) {
@@ -17862,21 +17861,29 @@ module.exports = {
           'issue_number': issueNumber,
           name: LABEL
         })
+        //TODO: Probably could be some sort of try/catch
+        await octokit.issues.createComment({
+          owner,
+          repo,
+          'issue_number': issueNumber,
+          body: `couldn't parse the reminders metadata. If you think this is in error, open an issue in github.com/probot/reminders`
+        })
       } else if (moment(reminder.when) < moment()) {
-        const labels = issue.labels
-        const frozenLabel = labels.find(({ name }) => name === LABEL)
-        const pos = labels.indexOf(frozenLabel)
-        labels.splice(pos, 1)
-
-        await octokit.issues.update({ owner, repo, 'issue_number': issueNumber, labels, state: 'open' })
-
-        console.log('trying to respond....');
+        console.log('attempting to respond....');
         await octokit.issues.createComment({
           owner,
           repo,
           'issue_number': issueNumber,
           body: `:wave: @${reminder.who}, ${reminder.what}`
         })
+        
+        const labels = issue.labels
+        const frozenLabel = labels.find(({ name }) => name === LABEL)
+        const pos = labels.indexOf(frozenLabel)
+        labels.splice(pos, 1)
+
+        //TODO: Should absract all of this into a remove label helper
+        await octokit.issues.update({ owner, repo, 'issue_number': issueNumber, labels, state: 'open' })
       }
     }))
   }
