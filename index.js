@@ -3,7 +3,7 @@ const { probotRun } = require('probot')
 const actionApp = require('./app-action')
 const probotApp = require('./app')
 
-if (provess.env.GITHUB_ACTIONS) {
+if (process.env.GITHUB_ACTIONS) {
     run(actionApp).catch((error) => {
         console.error(error);
         process.exit(1);
