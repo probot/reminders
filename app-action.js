@@ -13,4 +13,5 @@ module.exports = robot => {
 //TODO: pass in octokit as an additional arg that gets passed down to allow for better actions/switching
   commands(robot, 'remind', reminders.set)
   robot.on('schedule', reminders.check)
+  robot.on('repository_dispatch', reminders.dispatch)
 }
