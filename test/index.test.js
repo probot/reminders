@@ -1,5 +1,6 @@
 process.env.IGNORED_ACCOUNTS = ['jest']
 process.env.TZ = 'UTC'
+process.env.GITHUB_ACTION = 13055
 
 const { Application, ProbotOctokit } = require('probot')
 
@@ -95,11 +96,12 @@ describe('reminders', () => {
         })
         .patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
           const params = {
-            who: 'baxterthehacker',
+            who: '@baxterthehacker',
             what: 'check the spinaker',
+            when_raw:"July 1, 2017",
             when: chrono.parseDate('July 1, 2017 9:00am')
           }
-          expect(requestBody.body).toEqual(`I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
+          expect(requestBody.body).toEqual(`It looks like you accidently spelled 'commit' with two 't's\n\n/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
           return true
         })
         .reply(204)
@@ -196,13 +198,18 @@ describe('reminders', () => {
         .reply(200, { items: [issue] })
         .delete('/repos/baxterthehacker/public-repo/issues/2/labels/reminder')
         .reply(200)
+        .post('/repos/baxterthehacker/public-repo/issues/2/comments', (requestBody) => {
+          expect(requestBody.body).toEqual("couldn't parse the reminders metadata. If you think this is in error, open an issue in github.com/probot/reminders")
+          return true
+        })
+        .reply(200)
 
       await robot.receive(scheduleEvent)
       expect(mock.activeMocks()).toStrictEqual([])
     })
 
     test('test visitor activation', async () => {
-      issue.body = 'hello world\n\n<!-- probot = {"13055":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->'
+      issue.body = 'hello world\n\n<!-- probot = {"13055":{"who":"@baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->'
 
       mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Abaxterthehacker%2Fpublic-repo')
         .reply(200, { items: [issue] })
