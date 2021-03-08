@@ -9,6 +9,8 @@ const nock = require('nock')
 
 nock.disableNetConnect()
 
+// TODO: Dispatch event
+// TODO: Actions testing
 describe('reminders', () => {
   let robot
   let commentEvent
