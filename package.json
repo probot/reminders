@@ -42,6 +42,9 @@
   "standard": {
     "env": [
       "jest"
+    ],
+    "ignore": [
+      "/dist/**/*.js"
     ]
   }
 }
