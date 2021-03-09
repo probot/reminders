@@ -1,6 +1,8 @@
 process.env.IGNORED_ACCOUNTS = ['jest']
 process.env.TZ = 'UTC'
 process.env.GITHUB_ACTION = 13055
+process.env.APP_ID = 13055
+
 
 const { Application, ProbotOctokit } = require('probot')
 
@@ -92,7 +94,7 @@ describe('reminders', () => {
         .reply(200)
         .get('/repos/baxterthehacker/public-repo/issues/97')
         .reply(200, {
-          body: 'I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017'
+          body: "It looks like you accidently spelled 'commit' with two 't's."
         })
         .patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
           const params = {
@@ -101,7 +103,7 @@ describe('reminders', () => {
             when_raw:"July 1, 2017",
             when: chrono.parseDate('July 1, 2017 9:00am')
           }
-          expect(requestBody.body).toEqual(`It looks like you accidently spelled 'commit' with two 't's\n\n/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
+          expect(requestBody.body).toEqual(`It looks like you accidently spelled 'commit' with two 't's.\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
           return true
         })
         .reply(204)
@@ -132,8 +134,9 @@ describe('reminders', () => {
         })
         .patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
           const params = {
-            who: 'jbjonesjr',
+            who: '@jbjonesjr',
             what: 'check the spinaker',
+            when_raw:"July 1, 2017",
             when: chrono.parseDate('July 1, 2017 9:00am')
           }
           expect(requestBody.body).toEqual(`/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
