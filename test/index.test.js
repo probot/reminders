@@ -194,7 +194,7 @@ describe('reminders', () => {
     test('malformed metadata', async () => {
       issue.body = 'hello world'
 
-      mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Abaxterthehacker%2Fpublic-repo')
+      mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Aprobot%2Freminders')
         .reply(200, { items: [issue] })
         .delete('/repos/baxterthehacker/public-repo/issues/2/labels/reminder')
         .reply(200)
@@ -211,7 +211,7 @@ describe('reminders', () => {
     test('test visitor activation', async () => {
       issue.body = 'hello world\n\n<!-- probot = {"13055":{"who":"@baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->'
 
-      mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Abaxterthehacker%2Fpublic-repo')
+      mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Aprobot%2Freminders')
         .reply(200, { items: [issue] })
         .patch('/repos/baxterthehacker/public-repo/issues/2', (requestBody) => {
           expect(requestBody.labels).toEqual(
