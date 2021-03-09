@@ -196,9 +196,9 @@ describe('reminders', () => {
 
       mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Aprobot%2Freminders')
         .reply(200, { items: [issue] })
-        .delete('/repos/baxterthehacker/public-repo/issues/2/labels/reminder')
+        .delete('/repos/probot/reminders/issues/2/labels/reminder')
         .reply(200)
-        .post('/repos/baxterthehacker/public-repo/issues/2/comments', (requestBody) => {
+        .post('/repos/probot/reminders/issues/2/comments', (requestBody) => {
           expect(requestBody.body).toEqual("couldn't parse the reminders metadata. If you think this is in error, open an issue in github.com/probot/reminders")
           return true
         })
@@ -213,13 +213,13 @@ describe('reminders', () => {
 
       mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Aprobot%2Freminders')
         .reply(200, { items: [issue] })
-        .patch('/repos/baxterthehacker/public-repo/issues/2', (requestBody) => {
+        .patch('/repos/probot/reminders/issues/2', (requestBody) => {
           expect(requestBody.labels).toEqual(
             [])
           return true
         })
         .reply(200)
-        .post('/repos/baxterthehacker/public-repo/issues/2/comments', (requestBody) => {
+        .post('/repos/probot/reminders/issues/2/comments', (requestBody) => {
           expect(requestBody.body).toEqual(':wave: @baxterthehacker, Hey, we\'re back awake!')
           return true
         })
