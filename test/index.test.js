@@ -3,7 +3,6 @@ process.env.TZ = 'UTC'
 process.env.GITHUB_ACTION = 13055
 process.env.APP_ID = 13055
 
-
 const { Application, ProbotOctokit } = require('probot')
 
 const plugin = require('../app')
@@ -100,7 +99,7 @@ describe('reminders', () => {
           const params = {
             who: '@baxterthehacker',
             what: 'check the spinaker',
-            when_raw:"July 1, 2017",
+            when_raw: 'July 1, 2017',
             when: chrono.parseDate('July 1, 2017 9:00am')
           }
           expect(requestBody.body).toEqual(`It looks like you accidently spelled 'commit' with two 't's.\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
@@ -136,7 +135,7 @@ describe('reminders', () => {
           const params = {
             who: '@jbjonesjr',
             what: 'check the spinaker',
-            when_raw:"July 1, 2017",
+            when_raw: 'July 1, 2017',
             when: chrono.parseDate('July 1, 2017 9:00am')
           }
           expect(requestBody.body).toEqual(`/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)

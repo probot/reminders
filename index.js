@@ -8,7 +8,7 @@ if (process.env.GITHUB_ACTIONS) {
   })
 } else {
   require('probot').run(probotApp).catch((error) => {
-   console.error(error)
+    console.error(error)
     process.exit(1)
   })
 }
