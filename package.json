@@ -4,7 +4,7 @@
   "description": "reminders for GitHub Issues and Pull Requests",
   "author": "Jamie Jones",
   "license": "ISC",
-  "repository": "https://github.com/probot/probot-reminders.git",
+  "repository": "github:probot/reminders",
   "scripts": {
     "build-action": "ncc build index.js -o dist",
     "start": "probot run ./index.js",
