@@ -6,8 +6,10 @@
   "license": "ISC",
   "repository": "github:probot/reminders",
   "scripts": {
+    "build-action": "ncc build index.js -o dist",
     "start": "probot run ./index.js",
-    "test": "jest && standard",
+    "test": "jest",
+    "lint": "standard",
     "test:debug": "node --inspect=9229 node_modules/.bin/jest --runInBand"
   },
   "jest": {
@@ -16,6 +18,8 @@
   },
   "dependencies": {
     "chrono-node": "^2.0.0",
+    "@octokit/action": "^3.5.0",
+    "@probot/adapter-github-actions": "^3.0.1",
     "moment": "^2.18.1",
     "parse-reminder": "^1.2.0",
     "probot": "^10.9.0",
@@ -24,6 +28,7 @@
     "probot-scheduler": "2.0.0-beta.1"
   },
   "devDependencies": {
+    "@zeit/ncc": "^0.22.3",
     "eslint-plugin-import": "^2.8.0",
     "jest": "^29.0.0",
     "nock": "^13.0.4",
@@ -37,6 +42,9 @@
   "standard": {
     "env": [
       "jest"
+    ],
+    "ignore": [
+      "/dist/**/*.js"
     ]
   }
 }

@@ -1,12 +1,14 @@
-// Use UTC for for all Date parsing
-process.env.TZ = 'UTC'
+const actionApp = require('./app-action')
+const probotApp = require('./app')
 
-const createScheduler = require('probot-scheduler')
-const commands = require('probot-commands')
-const reminders = require('./lib/reminders')
-
-module.exports = robot => {
-  createScheduler(robot, {interval: 15 * 60 * 1000})
-  commands(robot, 'remind', reminders.set)
-  robot.on('schedule.repository', reminders.check)
+if (process.env.GITHUB_ACTIONS) {
+  require('@probot/adapter-github-actions').run(actionApp).catch((error) => {
+    console.error(error)
+    process.exit(1)
+  })
+} else {
+  require('probot').run(probotApp).catch((error) => {
+    console.error(error)
+    process.exit(1)
+  })
 }

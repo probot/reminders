@@ -1,14 +1,18 @@
 process.env.IGNORED_ACCOUNTS = ['jest']
 process.env.TZ = 'UTC'
+process.env.GITHUB_ACTION = 13055
+process.env.APP_ID = 13055
 
 const { Application, ProbotOctokit } = require('probot')
 
-const plugin = require('..')
+const plugin = require('../app')
 const chrono = require('chrono-node')
 const nock = require('nock')
 
 nock.disableNetConnect()
 
+// TODO: Dispatch event
+// TODO: Actions testing
 describe('reminders', () => {
   let robot
   let commentEvent
@@ -89,15 +93,15 @@ describe('reminders', () => {
         .reply(200)
         .get('/repos/baxterthehacker/public-repo/issues/97')
         .reply(200, {
-          body: 'I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017'
+          body: "It looks like you accidently spelled 'commit' with two 't's."
         })
         .patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
           const params = {
-            who: 'baxterthehacker',
+            who: '@baxterthehacker',
             what: 'check the spinaker',
             when: chrono.parseDate('July 1, 2017 9:00am')
           }
-          expect(requestBody.body).toEqual(`I am busy now, but will com back to this next quarter\n\n/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
+          expect(requestBody.body).toEqual(`It looks like you accidently spelled 'commit' with two 't's.\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
           return true
         })
         .reply(204)
@@ -128,7 +132,7 @@ describe('reminders', () => {
         })
         .patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
           const params = {
-            who: 'jbjonesjr',
+            who: '@jbjonesjr',
             what: 'check the spinaker',
             when: chrono.parseDate('July 1, 2017 9:00am')
           }
@@ -190,9 +194,14 @@ describe('reminders', () => {
     test('malformed metadata', async () => {
       issue.body = 'hello world'
 
-      mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Abaxterthehacker%2Fpublic-repo')
+      mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Aprobot%2Freminders')
         .reply(200, { items: [issue] })
-        .delete('/repos/baxterthehacker/public-repo/issues/2/labels/reminder')
+        .delete('/repos/probot/reminders/issues/2/labels/reminder')
+        .reply(200)
+        .post('/repos/probot/reminders/issues/2/comments', (requestBody) => {
+          expect(requestBody.body).toEqual("couldn't parse the reminders metadata. If you think this is in error, open an issue in github.com/probot/reminders")
+          return true
+        })
         .reply(200)
 
       await robot.receive(scheduleEvent)
@@ -200,17 +209,17 @@ describe('reminders', () => {
     })
 
     test('test visitor activation', async () => {
-      issue.body = 'hello world\n\n<!-- probot = {"13055":{"who":"baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->'
+      issue.body = 'hello world\n\n<!-- probot = {"13055":{"who":"@baxterthehacker","when":"2017-07-01T17:30:00.000Z","what":"Hey, we\'re back awake!"}} -->'
 
-      mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Abaxterthehacker%2Fpublic-repo')
+      mock.get('/search/issues?q=label%3A%22reminder%22%20repo%3Aprobot%2Freminders')
         .reply(200, { items: [issue] })
-        .patch('/repos/baxterthehacker/public-repo/issues/2', (requestBody) => {
+        .patch('/repos/probot/reminders/issues/2', (requestBody) => {
           expect(requestBody.labels).toEqual(
             [])
           return true
         })
         .reply(200)
-        .post('/repos/baxterthehacker/public-repo/issues/2/comments', (requestBody) => {
+        .post('/repos/probot/reminders/issues/2/comments', (requestBody) => {
           expect(requestBody.body).toEqual(':wave: @baxterthehacker, Hey, we\'re back awake!')
           return true
         })
