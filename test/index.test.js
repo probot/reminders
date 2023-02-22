@@ -155,7 +155,7 @@ describe('reminders', () => {
 
   describe('dealing with bad data', () => {
     test('shows an error when reminder parsing fails', async () => {
-      commentEvent.payload.comment.body = '/remind nope'
+      commentEvent.payload.comment.body = '/remind me nope'
 
       mock.patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
         expect(requestBody.labels).toEqual(
