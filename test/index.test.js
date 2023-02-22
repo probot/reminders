@@ -3,7 +3,7 @@ process.env.TZ = 'UTC'
 process.env.GITHUB_ACTION = 13055
 process.env.APP_ID = 13055
 
-const { Application, ProbotOctokit } = require('probot')
+const { Probot, ProbotOctokit } = require('probot')
 
 const plugin = require('../app')
 const chrono = require('chrono-node')
@@ -46,7 +46,7 @@ describe('reminders', () => {
       }
     }
 
-    robot = new Application({
+    robot = new Probot({
       'secret': 'foo',
       githubToken: 'test',
       // Disable throttling & retrying requests for easier testing
