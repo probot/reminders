@@ -189,7 +189,7 @@ describe('reminders', () => {
       try {
         await robot.receive(commentEvent)
       } catch (err) {
-        expect(err.message.trim()).toContain('Error: Unable to parse reminder: remind nope')
+        expect(err.message.trim()).toContain('Unable to parse reminder: remind me nope')
       }
     })
   })
