@@ -3,7 +3,7 @@ process.env.TZ = 'UTC'
 process.env.GITHUB_ACTION = 13055
 process.env.APP_ID = 13055
 
-const { Application, ProbotOctokit } = require('probot')
+const { Probot, ProbotOctokit } = require('probot')
 
 const plugin = require('../app')
 const chrono = require('chrono-node')
@@ -46,7 +46,7 @@ describe('reminders', () => {
       }
     }
 
-    robot = new Application({
+    robot = new Probot({
       'secret': 'foo',
       githubToken: 'test',
       // Disable throttling & retrying requests for easier testing
@@ -99,7 +99,8 @@ describe('reminders', () => {
           const params = {
             who: '@baxterthehacker',
             what: 'check the spinaker',
-            when: chrono.parseDate('July 1, 2017 9:00am')
+            when: chrono.parseDate('July 1, 2017 9:00am'),
+            "class":"reminders2.0"
           }
           expect(requestBody.body).toEqual(`It looks like you accidently spelled 'commit' with two 't's.\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
           return true
@@ -134,7 +135,8 @@ describe('reminders', () => {
           const params = {
             who: '@jbjonesjr',
             what: 'check the spinaker',
-            when: chrono.parseDate('July 1, 2017 9:00am')
+            when: chrono.parseDate('July 1, 2017 9:00am'),
+            "class":"reminders2.0"
           }
           expect(requestBody.body).toEqual(`/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
           return true
@@ -153,7 +155,7 @@ describe('reminders', () => {
 
   describe('dealing with bad data', () => {
     test('shows an error when reminder parsing fails', async () => {
-      commentEvent.payload.comment.body = '/remind nope'
+      commentEvent.payload.comment.body = '/remind me nope'
 
       mock.patch('/repos/baxterthehacker/public-repo/issues/97', (requestBody) => {
         expect(requestBody.labels).toEqual(
@@ -171,7 +173,8 @@ describe('reminders', () => {
           const params = {
             who: 'jbjonesjr',
             what: 'check the spinaker',
-            when: chrono.parseDate('July 1, 2017 9:00am')
+            when: chrono.parseDate('July 1, 2017 9:00am'),
+            "class":"reminders2.0"
           }
           expect(requestBody.body).toEqual(`/remind me to check the spinaker on July 1, 2017\n\n<!-- probot = {"13055":${JSON.stringify(params)}} -->`)
           return true
@@ -186,7 +189,7 @@ describe('reminders', () => {
       try {
         await robot.receive(commentEvent)
       } catch (err) {
-        expect(err.message.trim()).toContain('Error: Unable to parse reminder: remind nope')
+        expect(err.message.trim()).toContain('Unable to parse reminder: remind me nope')
       }
     })
   })
