@@ -17,9 +17,10 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "chrono-node": "^2.0.0",
     "@octokit/action": "^3.5.0",
     "@probot/adapter-github-actions": "^3.0.1",
+    "@twuni/emojify": "^1.0.2",
+    "chrono-node": "^2.0.0",
     "moment": "^2.18.1",
     "parse-reminder": "^1.2.0",
     "probot": "^10.9.0",
