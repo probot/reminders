@@ -9,7 +9,7 @@ Use the `/remind` slash command to set a reminder on any comment box on GitHub a
 ## Usage
 
 1. **[Install the GitHub App](https://github.com/apps/reminders)**
-2. Start using the `/reminders` command on the repository.
+2. Start using the `/remind` command on the repository.
 
 ## Setup
 
