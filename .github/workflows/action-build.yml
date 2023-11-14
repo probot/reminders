@@ -10,8 +10,11 @@ jobs:
         shell: bash
         run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
         id: myref
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
       - run: npm install
       - run: npm run-script build-action
       - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version
