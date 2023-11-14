@@ -21,6 +21,7 @@ const {
 const {
 	getPrototypeOf: localReflectGetPrototypeOf,
 	apply: localReflectApply,
+	construct: localReflectConstruct,
 	deleteProperty: localReflectDeleteProperty,
 	has: localReflectHas,
 	defineProperty: localReflectDefineProperty,
@@ -276,13 +277,30 @@ if (typeof OriginalCallSite === 'function') {
 				return;
 			}
 			const newWrapped = (error, sst) => {
+				const sandboxSst = ensureThis(sst);
 				if (localArrayIsArray(sst)) {
-					for (let i=0; i < sst.length; i++) {
-						const cs = sst[i];
-						if (typeof cs === 'object' && localReflectGetPrototypeOf(cs) === OriginalCallSite.prototype) {
-							sst[i] = new CallSite(cs);
+					if (sst === sandboxSst) {
+						for (let i=0; i < sst.length; i++) {
+							const cs = sst[i];
+							if (typeof cs === 'object' && localReflectGetPrototypeOf(cs) === OriginalCallSite.prototype) {
+								sst[i] = new CallSite(cs);
+							}
+						}
+					} else {
+						sst = [];
+						for (let i=0; i < sandboxSst.length; i++) {
+							const cs = sandboxSst[i];
+							localReflectDefineProperty(sst, i, {
+								__proto__: null,
+								value: new CallSite(cs),
+								enumerable: true,
+								configurable: true,
+								writable: true
+							});
 						}
 					}
+				} else {
+					sst = sandboxSst;
 				}
 				return value(error, sst);
 			};
@@ -415,6 +433,63 @@ if (AsyncGeneratorFunction) {
 	overrideWithProxy(AsyncGeneratorFunction.prototype, 'constructor', AsyncGeneratorFunction, makeCheckFunction(true, true));
 }
 
+function makeSafeHandlerArgs(args) {
+	const sArgs = ensureThis(args);
+	if (sArgs === args) return args;
+	const a = [];
+	for (let i=0; i < sArgs.length; i++) {
+		localReflectDefineProperty(a, i, {
+			__proto__: null,
+			value: sArgs[i],
+			enumerable: true,
+			configurable: true,
+			writable: true
+		});
+	}
+	return a;
+}
+
+const makeSafeArgs = Object.freeze({
+	__proto__: null,
+	apply(target, thiz, args) {
+		return localReflectApply(target, thiz, makeSafeHandlerArgs(args));
+	},
+	construct(target, args, newTarget) {
+		return localReflectConstruct(target, makeSafeHandlerArgs(args), newTarget);
+	}
+});
+
+const proxyHandlerHandler = Object.freeze({
+	__proto__: null,
+	get(target, name, receiver) {
+		const value = target.handler[name];
+		if (typeof value !== 'function') return value;
+		return new LocalProxy(value, makeSafeArgs);
+	}
+});
+
+function wrapProxyHandler(args) {
+	if (args.length < 2) return args;
+	const handler = args[1];
+	args[1] = new LocalProxy({__proto__: null, handler}, proxyHandlerHandler);
+	return args;
+}
+
+const proxyHandler = Object.freeze({
+	__proto__: null,
+	apply(target, thiz, args) {
+		return localReflectApply(target, thiz, wrapProxyHandler(args));
+	},
+	construct(target, args, newTarget) {
+		return localReflectConstruct(target, wrapProxyHandler(args), newTarget);
+	}
+});
+
+const proxiedProxy = new LocalProxy(LocalProxy, proxyHandler);
+
+overrideWithProxy(LocalProxy, 'revocable', LocalProxy.revocable, proxyHandler);
+
+global.Proxy = proxiedProxy;
 global.Function = proxiedFunction;
 global.eval = new LocalProxy(localEval, EvalHandler);
 
@@ -422,23 +497,36 @@ global.eval = new LocalProxy(localEval, EvalHandler);
  * Promise sanitization
  */
 
-if (localPromise && !allowAsync) {
+if (localPromise) {
 
 	const PromisePrototype = localPromise.prototype;
 
-	overrideWithProxy(PromisePrototype, 'then', PromisePrototype.then, AsyncErrorHandler);
-	// This seems not to work, and will produce
-	// UnhandledPromiseRejectionWarning: TypeError: Method Promise.prototype.then called on incompatible receiver [object Object].
-	// This is likely caused since the host.Promise.prototype.then cannot use the VM Proxy object.
-	// Contextify.connect(host.Promise.prototype.then, Promise.prototype.then);
+	if (!allowAsync) {
 
-	if (PromisePrototype.finally) {
-		overrideWithProxy(PromisePrototype, 'finally', PromisePrototype.finally, AsyncErrorHandler);
-		// Contextify.connect(host.Promise.prototype.finally, Promise.prototype.finally);
-	}
-	if (Promise.prototype.catch) {
-		overrideWithProxy(PromisePrototype, 'catch', PromisePrototype.catch, AsyncErrorHandler);
-		// Contextify.connect(host.Promise.prototype.catch, Promise.prototype.catch);
+		overrideWithProxy(PromisePrototype, 'then', PromisePrototype.then, AsyncErrorHandler);
+		// This seems not to work, and will produce
+		// UnhandledPromiseRejectionWarning: TypeError: Method Promise.prototype.then called on incompatible receiver [object Object].
+		// This is likely caused since the host.Promise.prototype.then cannot use the VM Proxy object.
+		// Contextify.connect(host.Promise.prototype.then, Promise.prototype.then);
+
+	} else {
+
+		overrideWithProxy(PromisePrototype, 'then', PromisePrototype.then, {
+			__proto__: null,
+			apply(target, thiz, args) {
+				if (args.length > 1) {
+					const onRejected = args[1];
+					if (typeof onRejected === 'function') {
+						args[1] = function wrapper(error) {
+							error = ensureThis(error);
+							return localReflectApply(onRejected, this, [error]);
+						};
+					}
+				}
+				return localReflectApply(target, thiz, args);
+			}
+		});
+
 	}
 
 }
