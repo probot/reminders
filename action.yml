@@ -1,5 +1,5 @@
 name: 'Issue Reminders'
 description: 'Let a robot remind you about the important issue'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: "dist/index.js"
