@@ -18,7 +18,7 @@
     "chrono-node": "^2.0.0",
     "moment": "^2.18.1",
     "parse-reminder": "^1.2.0",
-    "probot": "^10.9.0",
+    "probot": "^12.0.0",
     "probot-commands": "^1.0.1",
     "probot-metadata": "^2.0.0",
     "probot-scheduler": "2.0.0-beta.1"
